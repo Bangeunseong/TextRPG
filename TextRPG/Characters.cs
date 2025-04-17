@@ -1,4 +1,4 @@
-﻿namespace TextRPG
+namespace TextRPG
 {
     /// <summary>
     /// Base Character Stat.
@@ -38,22 +38,21 @@
     abstract class Character : IDamagable
     {
         // Field
-        private CharacterStat _characterStat;
-        private int _currency;
-        private int _exp;
-        private bool _isAlive;
+        private CharacterStat characterStat;
+        private int currency;
+        private int exp;
 
         // Property
-        public float MaxHealth { get { return _characterStat.MaxHealth; } private set { _characterStat.MaxHealth = value; } }
-        public float Health { get { return _characterStat.Health; } set { _characterStat.Health = Math.Clamp(value, 0, MaxHealth); } }
-        public string Name { get { return _characterStat.Name; } set { _characterStat.Name = value; } }
-        public int Level { get { return _characterStat.Level; } set { _characterStat.Level = value; } }
-        public AttackStat AttackStat { get { return _characterStat.AttackStat; } set { _characterStat.AttackStat = value; } }
-        public DefendStat DefendStat { get { return _characterStat.DefendStat; } set { _characterStat.DefendStat = value; } }
+        public float MaxHealth { get { return characterStat.MaxHealth; } private set { characterStat.MaxHealth = value; } }
+        public float Health { get { return characterStat.Health; } set { characterStat.Health = Math.Clamp(value, 0, MaxHealth); } }
+        public string Name { get { return characterStat.Name; } set { characterStat.Name = value; } }
+        public int Level { get { return characterStat.Level; } set { characterStat.Level = value; } }
+        public AttackStat AttackStat { get { return characterStat.AttackStat; } set { characterStat.AttackStat = value; } }
+        public DefendStat DefendStat { get { return characterStat.DefendStat; } set { characterStat.DefendStat = value; } }
         
-        public int Currency { get { return _currency; } set { _currency = Math.Max(0, value); } }
-        public int Exp { get { return _exp; } private set { _exp = Math.Clamp(value, 0, 9999); } }
-        public bool IsAlive { get { return _isAlive; } private set { _isAlive = value; } }
+        public int Currency { get { return currency; } set { currency = Math.Max(0, value); } }
+        public int Exp { get { return exp; } private set { exp = Math.Clamp(value, 0, 9999); } }
+        public bool IsAlive { get; private set; } = true;
 
         public List<Armor> Armors = new List<Armor>();
         public List<Weapon> Weapons = new List<Weapon>();
@@ -65,12 +64,11 @@
         public event Action? OnDeath;
 
         // Constructor
-        public Character(CharacterStat characterStat)
+        public Character(CharacterStat characterStat, int currency, int exp)
         {
-            _characterStat = characterStat;
-            Currency = 100;
-            Exp = 0;
-            IsAlive = true;
+            this.characterStat = characterStat;
+            Currency = currency;
+            Exp = exp;
         }
 
         public void OnEarnExp(int exp)
@@ -101,6 +99,15 @@
             Health -= calculatedDamage;
 
             if (Health <= 0 && IsAlive) Die();
+        }
+
+        public void OnRevive()
+        {
+            if (IsAlive) { return; }
+
+            IsAlive = true;
+            Currency -= 100;
+            Health = MaxHealth;
         }
 
         private void OnLevelUp()
@@ -134,21 +141,21 @@
         public Job Job { get { return job; } private set { job = value; } }
 
         // Constructor
-        public Warrior(CharacterStat characterStat) : base(characterStat) 
+        public Warrior(CharacterStat characterStat, int currency, int exp) : base(characterStat, currency, exp) 
         { 
             job = Job.Warrior;
 
             // LINQ
-            var basicHelmets = from armor in ItemLists.armors
+            var basicHelmets = from armor in ItemLists.Armors
                                where armor.GetType().Equals(typeof(Helmet)) && armor.Rarity == Rarity.Common
                                select armor;
-            var basicChestArmors = from armor in ItemLists.armors
+            var basicChestArmors = from armor in ItemLists.Armors
                                    where armor.GetType().Equals(typeof(ChestArmor)) && armor.Rarity == Rarity.Common
                                    select armor;
-            var basicSwords = from sword in ItemLists.weapons
+            var basicSwords = from sword in ItemLists.Weapons
                               where sword.GetType().Equals(typeof(Sword)) && sword.Rarity == Rarity.Common
                               select sword;
-            var basicHealthPotions = from item in ItemLists.consumables
+            var basicHealthPotions = from item in ItemLists.Consumables
                                     where item.GetType().Equals(typeof(HealthPotion)) && item.Rarity == Rarity.Common
                                     select item;
 
@@ -171,19 +178,19 @@
         public Job Job { get { return job; } private set { job = value; } }
 
         // Constructor
-        public Wizard(CharacterStat characterStat) : base(characterStat)
+        public Wizard(CharacterStat characterStat, int currency, int exp) : base(characterStat, currency, exp)
         { 
             job = Job.Wizard;
-            var basicHelmets = from armor in ItemLists.armors
+            var basicHelmets = from armor in ItemLists.Armors
                                where armor.GetType().Equals(typeof(Helmet)) && armor.Rarity == Rarity.Common
                                select armor;
-            var basicChestArmors = from armor in ItemLists.armors
+            var basicChestArmors = from armor in ItemLists.Armors
                                    where armor.GetType().Equals(typeof(ChestArmor)) && armor.Rarity == Rarity.Common
                                    select armor;
-            var basicStaffs = from staff in ItemLists.weapons
+            var basicStaffs = from staff in ItemLists.Weapons
                               where staff.GetType().Equals(typeof(Staff)) && staff.Rarity == Rarity.Common
                               select staff;
-            var basicHealthPotions = from item in ItemLists.consumables
+            var basicHealthPotions = from item in ItemLists.Consumables
                                      where item.GetType().Equals(typeof(HealthPotion)) && item.Rarity == Rarity.Common
                                      select item;
 
@@ -206,19 +213,19 @@
         public Job Job { get { return job; } private set { job = value; } }
 
         // Constructor
-        public Archer(CharacterStat characterStat) : base(characterStat) 
+        public Archer(CharacterStat characterStat, int currency, int exp) : base(characterStat, currency, exp) 
         { 
             job = Job.Archer;
-            var basicHelmets = from armor in ItemLists.armors
+            var basicHelmets = from armor in ItemLists.Armors
                                where armor.GetType().Equals(typeof(Helmet)) && armor.Rarity == Rarity.Common
                                select armor;
-            var basicChestArmors = from armor in ItemLists.armors
+            var basicChestArmors = from armor in ItemLists.Armors
                                    where armor.GetType().Equals(typeof(ChestArmor)) && armor.Rarity == Rarity.Common
                                    select armor;
-            var basicBows = from bow in ItemLists.weapons
+            var basicBows = from bow in ItemLists.Weapons
                               where bow.GetType().Equals(typeof(Bow)) && bow.Rarity == Rarity.Common
                               select bow;
-            var basicHealthPotions = from item in ItemLists.consumables
+            var basicHealthPotions = from item in ItemLists.Consumables
                                      where item.GetType().Equals(typeof(HealthPotion)) && item.Rarity == Rarity.Common
                                      select item;
 

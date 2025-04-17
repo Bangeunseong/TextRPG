@@ -11,32 +11,32 @@ namespace TextRPG
     /// </summary>
     abstract class Monster : IDamagable
     {
-        private CharacterStat _characterStat;
-        private bool _isAlive;
-        private int _exp;
+        private CharacterStat characterStat;
+        private bool isAlive;
+        private int exp;
 
         // Property
-        public float MaxHealth { get { return _characterStat.MaxHealth; } }
-        public float Health { get { return _characterStat.Health; } set { _characterStat.Health = Math.Clamp(value, 0, MaxHealth); } }
-        public string Name { get { return _characterStat.Name; } set { _characterStat.Name = value; } }
-        public int Level { get { return _characterStat.Level; } set { _characterStat.Level = value; } }
-        public AttackStat AttackStat { get { return _characterStat.AttackStat; } set { _characterStat.AttackStat = value; } }
-        public DefendStat DefendStat { get { return _characterStat.DefendStat; } set { _characterStat.DefendStat = value; } }
+        public float MaxHealth { get { return characterStat.MaxHealth; } }
+        public float Health { get { return characterStat.Health; } set { characterStat.Health = Math.Clamp(value, 0, MaxHealth); } }
+        public string Name { get { return characterStat.Name; } set { characterStat.Name = value; } }
+        public int Level { get { return characterStat.Level; } set { characterStat.Level = value; } }
+        public AttackStat AttackStat { get { return characterStat.AttackStat; } set { characterStat.AttackStat = value; } }
+        public DefendStat DefendStat { get { return characterStat.DefendStat; } set { characterStat.DefendStat = value; } }
         public AttackType AttackType { get; protected set; }
         
-        public int Exp { get { return _exp; } set { _exp = value; } }
-        public bool IsAlive { get { return _isAlive; } private set { _isAlive = value; } }
+        public int Exp { get { return exp; } set { exp = value; } }
+        public bool IsAlive { get { return isAlive; } private set { isAlive = value; } }
 
         public event Action OnDeath;
 
         public Monster(CharacterStat characterStat, int exp)
         {
-            _characterStat = characterStat;
+            this.characterStat = characterStat;
             IsAlive = true;
             Exp = exp;
         }
 
-        public CharacterStat GetStat() { return _characterStat; }
+        public CharacterStat GetStat() { return characterStat; }
 
         public void OnDamage(AttackType type, float damage)
         {
@@ -106,9 +106,9 @@ namespace TextRPG
     static class MonsterLists
     {
         public static Monster[] monsters = {
-            new GoblinWarrior(new CharacterStat("Normal Goblin Warrior", 150, 1, new AttackStat(10f, 1f, 1f), new DefendStat(25, 10, 1)), 20),
-            new GoblinArcher(new CharacterStat("Normal Goblin Archer", 120, 1, new AttackStat(1f, 10f, 1f), new DefendStat(15, 18, 3)), 25),
-            new GoblinMage(new CharacterStat("Normal Goblin Mage", 100, 1, new AttackStat(1f, 10f, 1f), new DefendStat(15, 18, 3)), 30),
+            new GoblinWarrior(new CharacterStat("Normal Goblin Warrior", 150, 1, new AttackStat(25f, 1f, 1f), new DefendStat(18, 15, 3)), 20),
+            new GoblinArcher(new CharacterStat("Normal Goblin Archer", 120, 1, new AttackStat(1f, 25f, 1f), new DefendStat(15, 18, 3)), 25),
+            new GoblinMage(new CharacterStat("Normal Goblin Mage", 100, 1, new AttackStat(1f, 1f, 25f), new DefendStat(3, 15, 18)), 30),
         };
     }
 }

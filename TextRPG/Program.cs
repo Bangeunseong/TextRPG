@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 
 namespace TextRPG
 {
@@ -16,40 +16,57 @@ namespace TextRPG
         }
 
         /// <summary>
-        /// Player chooses to start the game or exit
+        /// Player can start the game or end the game.
         /// </summary>
         /// <returns>Returns true, when player chooses to start the game.</returns>
         private bool InMainMenu()
         {
-            return GameManager.SelectGameOption();
+            int option;
+            while (true)
+            {
+                UIManager.GameOptionUI();
+                if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); }
+                else { option = Math.Clamp(opt, 1, Enum.GetValues(typeof(GameOption)).Length); break; }
+            }
+
+            switch ((GameOption)(option - 1))
+            {
+                case GameOption.NewGame: GameManager.Switch_Job(); GameManager.GameState = GameState.Town; break;
+                case GameOption.Continue: Console.WriteLine("Not yet implemented!"); return false;
+                case GameOption.Exit: return false;
+            }
+
+            return true;
         }
 
+        #region Town Method and Misc. Methods -> Rest, Inventory, Status, Option, Shop
         /// <summary>
-        /// Player goes to cabin and choose to how much health to be restored
+        /// Player can go to cabin and choose to how much health to be restored.
         /// </summary>
         private void InRest()
         {
-            bool IsSelected = false;
+            bool isSelected = false;
             int option = 1;
-            while(!IsSelected)
+
+            while(!isSelected)
             {
                 UIManager.CabinUI();
 
                 if(!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); continue; }
-                
-                switch (Math.Clamp(opt, 1, 3))
+                option = Math.Clamp(opt, 1, 3);
+                switch (option)
                 {
                     case 1:
                         if (GameManager.SelectedCharacter.Currency < 20) { Console.WriteLine("| Not enough Money! |"); }
-                        else { IsSelected = true; option = 1; }
+                        else { isSelected = true; }
                         break;
                     case 2:
                         if (GameManager.SelectedCharacter.Currency < 40) { Console.WriteLine("| Not enough Money! |"); }
-                        else { IsSelected = true; option = 2; }
+                        else { isSelected = true; }
                         break;
                     case 3:
                         if (GameManager.SelectedCharacter.Currency < 60) { Console.WriteLine("| Not enough Money! |"); }
-                        else { IsSelected = true; option = 3; }
+                        else { isSelected = true; }
                         break;
                 }
             }
@@ -63,118 +80,121 @@ namespace TextRPG
         }
 
         /// <summary>
-        /// Player chooses to look at the inventory.
+        /// Player can look at the inventory of the character.
         /// </summary>
         private void InInventory()
-        {
-            Character character = GameManager.SelectedCharacter;
-            
+        {   
             while (true)
             {
-                UIManager.InventoryUI(character);
+                // Prints Inventory UI
+                UIManager.InventoryUI(GameManager.SelectedCharacter);
 
-                // Choose Option what to do in inventory
-                Console.WriteLine();
-                Console.WriteLine("| ------------- |");
-                Console.WriteLine("| Options |");
-                Console.WriteLine("| 1. Back |");
-                Console.WriteLine("| 2. Select Item |");
-                Console.WriteLine("| ------------- |");
-                Console.Write("Select Option : ");
-
+                // Get Input from user
                 if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); continue; }
+                opt = Math.Clamp(opt, 1, 2);
+
+                // If "Back" option selected, go back to main game.
+                if (opt == 1) return;
+
+                // Select Category and Index of Item
+                Console.Write("Type item category and index ( Type [ Category,Index ] ) : ");
+                string[] vals = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
+                if (!int.TryParse(vals[0].Trim(new char[] { '[', ']', ' ', ',' }), out int cat)) { Console.WriteLine("| Invalid Input! |"); break; }
+                if (!int.TryParse(vals[1].Trim(new char[] { '[', ']', ' ', ',' }), out int ind)) { Console.WriteLine("| Invalid Input! |"); break; }
+                ItemCategory category = (ItemCategory)(Math.Clamp(cat, 1, 3) - 1);
                 
-                switch (Math.Clamp(opt, 1, 2))
-                {
-                    case 1: return;
-                    case 2:
-                        // Select Category
-                        Console.Write("Type item category and index ( Type [ Category,Index ] ) : ");
-                        string[] vals = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
-                        if (!int.TryParse(vals[0].Trim(new char[] { '[', ']', ' ', ',' }), out int cat)) { Console.WriteLine("| Invalid Input! |"); break; }
-                        if (!int.TryParse(vals[1].Trim(new char[] { '[', ']', ' ', ',' }), out int ind)) { Console.WriteLine("| Invalid Input! |"); break; }
-                        
-                        ItemCategory category = (ItemCategory)(Math.Clamp(cat, 1, 3) - 1);
-                        IWearable? wearable = null;
-                        IPickable? pickable = null;
-                        IUseable? useable = null;
-                        switch (category)
-                        {
-                            case ItemCategory.Armor:
-                                if (character.Armors.Count < 1) break;
-                                wearable = character.Armors[Math.Clamp(ind - 1, 0, character.Armors.Count - 1)];
-                                pickable = character.Armors[Math.Clamp(ind - 1, 0, character.Armors.Count - 1)];
-                                break;
-                            case ItemCategory.Weapon:
-                                if (character.Weapons.Count < 1) break;
-                                wearable = character.Weapons[Math.Clamp(ind - 1, 0, character.Weapons.Count - 1)];
-                                pickable = character.Weapons[Math.Clamp(ind - 1, 0, character.Weapons.Count - 1)];
-                                break;
-                            case ItemCategory.Consumable:
-                                if (character.Consumables.Count < 1) break;
-                                useable = character.Consumables[Math.Clamp(ind - 1, 0, character.Consumables.Count - 1)];
-                                break;
-                        }
+                // Get interfaces from selected item to change its state
+                InInventory_SelectItem(category, ind, out IWearable? wearable, out IPickable? pickable, out IUseable? useable);
 
-                        // Check If there is item in array
-                        if (wearable == null && useable == null && pickable == null) { Console.WriteLine("| Selected Category is empty! |"); break; }
+                // Check If there is item in array
+                if (wearable == null && useable == null && pickable == null) { Console.WriteLine("| Selected Category is empty! |"); break; }
 
-                        // Select Item and Modify
-                        if (category == ItemCategory.Armor || category == ItemCategory.Weapon)
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine("| ------------- |");
-                            Console.WriteLine("| Options |");
-                            Console.WriteLine("| 1. Back |");
-                            Console.WriteLine("| 2. Equip |");
-                            Console.WriteLine("| 3. Unequip |");
-                            Console.WriteLine("| 4. Drop |");
-                            Console.WriteLine("| ------------- |");
-                            Console.Write("Select Option : ");
-                            if (!int.TryParse(Console.ReadLine(), out int index)) { Console.WriteLine("| Invalid Input! |"); break; }
-                            
-                            switch (Math.Clamp(index, 1, 4))
-                            {
-                                case 1: break;
-                                case 2: wearable?.OnEquipped(GameManager.SelectedCharacter); break;
-                                case 3: wearable?.OnUnequipped(GameManager.SelectedCharacter); break;
-                                case 4: pickable?.OnDropped(GameManager.SelectedCharacter); break;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine();
-                            Console.WriteLine("| ------------- |");
-                            Console.WriteLine("| Options |");
-                            Console.WriteLine("| 1. Back |");
-                            Console.WriteLine("| 2. Use  |");
-                            Console.WriteLine("| ------------- |");
-                            Console.Write("Select Option : ");
-                            if (!int.TryParse(Console.ReadLine(), out int index)) { Console.WriteLine("| Invalid Input! |"); break; }
-                            
-                            switch (Math.Clamp(index, 1, 2))
-                            {
-                                case 1: break;
-                                case 2: useable.OnUsed(GameManager.SelectedCharacter); break;
-                            }
-                        }
-                        break;
-                    default: Console.WriteLine("Something is wrong!"); break;
-                }
+                // Select Item and Modify
+                if(!InInventory_ChangeStateOfItem(category, wearable, useable, pickable)) continue;
             }
         }
 
         /// <summary>
-        /// Player chooses to look at the current status of the character
+        /// This method is used to extract selected item's interfaces.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="ind"></param>
+        /// <param name="wearable"></param>
+        /// <param name="pickable"></param>
+        /// <param name="useable"></param>
+        private void InInventory_SelectItem(ItemCategory category, int ind, out IWearable? wearable, out IPickable? pickable, out IUseable? useable)
+        {
+            Character character = GameManager.SelectedCharacter;
+            wearable = null; pickable = null; useable = null;
+
+            switch (category)
+            {
+                case ItemCategory.Armor:
+                    if (character.Armors.Count < 1) break;
+                    wearable = character.Armors[Math.Clamp(ind - 1, 0, character.Armors.Count - 1)];
+                    pickable = character.Armors[Math.Clamp(ind - 1, 0, character.Armors.Count - 1)];
+                    break;
+                case ItemCategory.Weapon:
+                    if (character.Weapons.Count < 1) break;
+                    wearable = character.Weapons[Math.Clamp(ind - 1, 0, character.Weapons.Count - 1)];
+                    pickable = character.Weapons[Math.Clamp(ind - 1, 0, character.Weapons.Count - 1)];
+                    break;
+                case ItemCategory.Consumable:
+                    if (character.Consumables.Count < 1) break;
+                    useable = character.Consumables[Math.Clamp(ind - 1, 0, character.Consumables.Count - 1)];
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// This Method is used to change selected item state.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="wearable"></param>
+        /// <param name="useable"></param>
+        /// <param name="pickable"></param>
+        /// <returns></returns>
+        private bool InInventory_ChangeStateOfItem(ItemCategory category, IWearable? wearable, IUseable? useable, IPickable? pickable)
+        {
+            // Select Item and Modify
+            if (category == ItemCategory.Armor || category == ItemCategory.Weapon)
+            {
+                UIManager.InventoryUI_Equipment();
+                if (!int.TryParse(Console.ReadLine(), out int index)) { Console.WriteLine("| Invalid Input! |"); return false; }
+
+                switch (Math.Clamp(index, 1, 4))
+                {
+                    case 1: break;
+                    case 2: wearable?.OnEquipped(GameManager.SelectedCharacter); break;
+                    case 3: wearable?.OnUnequipped(GameManager.SelectedCharacter); break;
+                    case 4: pickable?.OnDropped(GameManager.SelectedCharacter); break;
+                }
+            }
+            else
+            {
+                UIManager.InventoryUI_Consumable();
+                if (!int.TryParse(Console.ReadLine(), out int index)) { Console.WriteLine("| Invalid Input! |"); return false; }
+
+                switch (Math.Clamp(index, 1, 2))
+                {
+                    case 1: break;
+                    case 2: useable.OnUsed(GameManager.SelectedCharacter); break;
+                }
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Player can look at the current status of the character
         /// </summary>
         private void InStatus() 
         {
             UIManager.StatusUI(GameManager.SelectedCharacter);
         }
-        
-        // TODO : Save and Load -> Optional
+
+        // Optional : Save and Load
         /// <summary>
-        /// Player chooses to save, load, or end game.
+        /// Gives interface that player can save, load, or end game.
         /// </summary>
         private void InOption()
         {
@@ -196,7 +216,7 @@ namespace TextRPG
         }
         
         /// <summary>
-        /// Gives interface what player can buy or sell items
+        /// Gives interface what player can buy or sell items.
         /// </summary>
         private void InShop()
         {
@@ -217,28 +237,7 @@ namespace TextRPG
                         string[] vals1 = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
                         if (!int.TryParse(vals1[0].Trim(new char[] {'[',']',' ',','}),out int cat1)) { Console.WriteLine("| Invalid Input! |"); break; }
                         if (!int.TryParse(vals1[1].Trim(new char[] {'[',']',' ',','}),out int ind1)) { Console.WriteLine("| Invalid Input! |"); break; }
-                        
-                        switch(Math.Clamp(cat1, 1, 3))
-                        {
-                            case 1:
-                                if(ItemLists.armors.Length < ind1 || ind1 < 1) 
-                                { 
-                                    Console.WriteLine("| Item does not exist! |"); break; 
-                                }
-                                ItemLists.armors[ind1 - 1].OnPurchased(character); break;
-                            case 2:
-                                if (ItemLists.weapons.Length < ind1 || ind1 < 1)
-                                {
-                                    Console.WriteLine("| Item does not exist! |"); break;
-                                }
-                                ItemLists.weapons[ind1 - 1].OnPurchased(character); break;
-                            case 3:
-                                if (ItemLists.consumables.Length < ind1 || ind1 < 1)
-                                {
-                                    Console.WriteLine("| Item does not exist! |"); break;
-                                }
-                                ItemLists.consumables[ind1 - 1].OnPurchased(character); break;
-                        }
+                        InShop_Buy((ItemCategory)(cat1 - 1), ind1);
                         break;
 
                     // Sell Item in inventory
@@ -247,35 +246,74 @@ namespace TextRPG
                         string[] vals2 = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
                         if (!int.TryParse(vals2[0].Trim(new char[] { '[', ']', ' ', ',' }), out int cat2)) { Console.WriteLine("| Invalid Input! |"); break; }
                         if (!int.TryParse(vals2[1].Trim(new char[] { '[', ']', ' ', ',' }), out int ind2)) { Console.WriteLine("| Invalid Input! |"); break; }
-
-                        switch (Math.Clamp(cat2, 1, 3))
-                        {
-                            case 1:
-                                if (character.Armors.Count < ind2 || ind2 < 1)
-                                {
-                                    Console.WriteLine("| Item does not exist! |"); break;
-                                }
-                                character.Armors[ind2 - 1].OnSold(character); break;
-                            case 2:
-                                if (character.Weapons.Count < ind2 || ind2 < 1)
-                                {
-                                    Console.WriteLine("| Item does not exist! |"); break;
-                                }
-                                character.Weapons[ind2 - 1].OnSold(character); break;
-                            case 3:
-                                if (character.Consumables.Count < ind2 || ind2 < 1)
-                                {
-                                    Console.WriteLine("| Item does not exist! |"); break;
-                                }
-                                character.Consumables[ind2 - 1].OnSold(character); break;
-                        }
+                        InShop_Sell((ItemCategory)(cat2 - 1), ind2);
                         break;
                 }
             }
         }
-        
+
         /// <summary>
-        /// Gives interface what player should do in town(Shop, Rest, Dungeon, Inventory, Status, Option).
+        /// Purchase Mechanism of item in shop.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="ind"></param>
+        private void InShop_Buy(ItemCategory category, int ind)
+        {
+            switch (category)
+            {
+                case ItemCategory.Armor:
+                    if (ItemLists.Armors.Length < ind || ind < 1)
+                    {
+                        Console.WriteLine("| Item does not exist! |"); break;
+                    }
+                    ItemLists.Armors[ind - 1].OnPurchased(GameManager.SelectedCharacter); break;
+                case ItemCategory.Weapon:
+                    if (ItemLists.Weapons.Length < ind || ind < 1)
+                    {
+                        Console.WriteLine("| Item does not exist! |"); break;
+                    }
+                    ItemLists.Weapons[ind - 1].OnPurchased(GameManager.SelectedCharacter); break;
+                case ItemCategory.Consumable:
+                    if (ItemLists.Consumables.Length < ind || ind < 1)
+                    {
+                        Console.WriteLine("| Item does not exist! |"); break;
+                    }
+                    ItemLists.Consumables[ind - 1].OnPurchased(GameManager.SelectedCharacter); break;
+            }
+        }
+
+        /// <summary>
+        /// Selling Mechanism of item in player inventory.
+        /// </summary>
+        /// <param name="category"></param>
+        /// <param name="ind"></param>
+        private void InShop_Sell(ItemCategory category, int ind)
+        {
+            switch (category)
+            {
+                case ItemCategory.Armor:
+                    if (GameManager.SelectedCharacter.Armors.Count < ind || ind < 1)
+                    {
+                        Console.WriteLine("| Item does not exist! |"); break;
+                    }
+                    GameManager.SelectedCharacter.Armors[ind - 1].OnSold(GameManager.SelectedCharacter); break;
+                case ItemCategory.Weapon:
+                    if (GameManager.SelectedCharacter.Weapons.Count < ind || ind < 1)
+                    {
+                        Console.WriteLine("| Item does not exist! |"); break;
+                    }
+                    GameManager.SelectedCharacter.Weapons[ind - 1].OnSold(GameManager.SelectedCharacter); break;
+                case ItemCategory.Consumable:
+                    if (GameManager.SelectedCharacter.Consumables.Count < ind || ind < 1)
+                    {
+                        Console.WriteLine("| Item does not exist! |"); break;
+                    }
+                    GameManager.SelectedCharacter.Consumables[ind - 1].OnSold(GameManager.SelectedCharacter); break;
+            }
+        }
+
+        /// <summary>
+        /// Gives interface what player can do in town(Shop, Rest, Dungeon, Inventory, Status, Option).
         /// </summary>
         private void InTown()
         {
@@ -294,101 +332,80 @@ namespace TextRPG
                 default: Console.WriteLine("| Something is wrong! |"); break;
             }
         }
-        
-        // TODO: Monster Encounter
+        #endregion
+
+        #region Dungeon Methods
+        /// <summary>
+        /// Gives interface what player can do in dungeon(Path selection, Inventory, Status, BackToTown).
+        /// </summary>
         private void InDungeon()
         {
+            // Check for Quota completion
             if (SpawnManager.KilledMonsterCount >= GameManager.Quota)
             {
                 SpawnManager.ResetKillCount();
                 GameManager.GoToNextLevel();
             }
-            Console.WriteLine();
-            Console.WriteLine("| ------------------------------------------------------------------------------- |");
-            Console.WriteLine($"| Killed Monsters : {SpawnManager.KilledMonsterCount}, Quota : {GameManager.Quota} |");
-            Console.WriteLine("| ------------------------------------------------------------------------------- |");
+
+            // Print UI of Kill Count and Player Options
+            UIManager.KillCountUI(SpawnManager.KilledMonsterCount, GameManager.Quota);
             UIManager.BaseUI($"The Dungeon Lv{GameManager.GroundLevel}", typeof(DungeonOptions));
 
+            // Try parsing, if successed clamp Parsed Input
             if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); return; }
-            
-            int random = new Random().Next(0, 10);
-            switch ((DungeonOptions)(Math.Clamp(opt - 1, 0, Enum.GetValues(typeof(DungeonOptions)).Length - 1)))
-            {
-                case DungeonOptions.Forward:
-                    if(random >= 0 && random < 2)
-                    {
-                        Console.WriteLine("| Warning! : Encountered Monsters |");
-                        SpawnManager.SpawnMonsters(GameManager.SelectedCharacter);
-                        GameManager.GameState = GameState.Battle;
-                    }
-                    else { Console.WriteLine("| Nothing found, it's cold and silent. |"); }
-                    break;
-                case DungeonOptions.Left:
-                    if (random >= 2 && random < 5)
-                    {
-                        Console.WriteLine("| Warning! : Encountered Monsters |");
-                        SpawnManager.SpawnMonsters(GameManager.SelectedCharacter);
-                        GameManager.GameState = GameState.Battle;
-                    }
-                    else { Console.WriteLine("| Nothing found, it's cold and silent. |"); }
-                    break;
-                case DungeonOptions.Right:
-                    if (random >= 5 && random < 8)
-                    {
-                        Console.WriteLine("| Warning! : Encountered Monsters |");
-                        SpawnManager.SpawnMonsters(GameManager.SelectedCharacter);
-                        GameManager.GameState = GameState.Battle;
-                    }
-                    else { Console.WriteLine("| Nothing found, it's cold and silent. |"); }
-                    break;
-                case DungeonOptions.Backward:
-                    if (random >= 8 && random < 10)
-                    {
-                        Console.WriteLine("| Warning! : Encountered Monsters |");
-                        SpawnManager.SpawnMonsters(GameManager.SelectedCharacter);
-                        GameManager.GameState = GameState.Battle;
-                    }
-                    else { Console.WriteLine("| Nothing found, it's cold and silent. |"); }
-                    break;
-                case DungeonOptions.Inventory: InInventory(); break;
-                case DungeonOptions.Status: InStatus(); break;
-                case DungeonOptions.BackToTown:
-                    GameManager.GameState = GameState.Town;
-                    if (GameManager.GameTime == GameTime.Afternoon) GameManager.GameTime = GameTime.Night;
-                    else { GameManager.GameTime = GameTime.Afternoon; GameManager.RemoveAllBuffs(); }
-                    break;
-                default: Console.WriteLine("| Something is wrong! |"); break;
-            }
+            opt = Math.Clamp(opt - 1, 0, Enum.GetValues(typeof(DungeonOptions)).Length - 1);
+
+            // Choices
+            if (opt >= 0 && opt < 4) { InDungeon_MonsterEncounter((DungeonOptions)opt); }
+            else if(opt == 4) { InInventory(); }
+            else if(opt == 5) { InStatus();}
+            else { InDungeon_ReturnToTown(); }
         }
 
-        // TODO : Attack and Defend, Monster Attack Mech.
+        /// <summary>
+        /// Mechanism of Monster Encounter in dungeon.
+        /// </summary>
+        /// <param name="option"></param>
+        /// <param name="random"></param>
+        /// <param name="spawnManager"></param>
+        /// <param name="gameManager"></param>
+        private void InDungeon_MonsterEncounter(DungeonOptions option)
+        {
+            int random = new Random().Next(0, 10);
+            if (random >= ((int)option*2) && random < ((int)option * 2 + 2 +((int)option % 2)))
+            {
+                SpawnManager.SpawnMonsters(GameManager.SelectedCharacter);
+                UIManager.MonsterEncounterUI(SpawnManager);
+                GameManager.GameState = GameState.Battle;
+            }
+            else { UIManager.NoMonsterFoundUI(); }
+        }
+
+        /// <summary>
+        /// Exit from dungeon and return to town.
+        /// </summary>
+        /// <param name="gameManager"></param>
+        private void InDungeon_ReturnToTown()
+        {
+            GameManager.GameState = GameState.Town;
+            if (GameManager.GameTime == GameTime.Afternoon) GameManager.GameTime = GameTime.Night;
+            else { GameManager.GameTime = GameTime.Afternoon; GameManager.RemoveAllBuffs(); }
+        }
+        #endregion
+
+        #region Battle Methods
+        /// <summary>
+        /// Gives interface what player can do in battle(Attack, Inventory, Status, Escape).
+        /// </summary>
         private void InBattle()
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------------------------------------------------------------------------- |");
-            Console.WriteLine($"| Killed Monsters : {SpawnManager.KilledMonsterCount}, Quota : {GameManager.Quota} |");
-            Console.WriteLine("| ------------------------------------------------------------------------------- |");
-
             UIManager.BaseUI("Kill the monsters", typeof(BattleOptions));
 
             if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); return; }
 
             switch ((BattleOptions)(Math.Clamp(opt - 1, 0, Enum.GetValues(typeof(BattleOptions)).Length - 1)))
             {
-                case BattleOptions.Attack:
-                    UIManager.ShowMonsterList(SpawnManager);
-                    if(!int.TryParse(Console.ReadLine(), out int ind)) { Console.WriteLine("| Invalid Input! |"); return; }
-                    if (ind > 0 && ind <= SpawnManager.GetMonsterCount()) {
-                        AttackType? type = GameManager.SelectedCharacter.EquippedWeapon?.AttackType;
-                        switch (type)
-                        {
-                            case AttackType.Close: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
-                            case AttackType.Long: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.RangeAttack); break;
-                            case AttackType.Magic: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.MagicAttack); break;
-                            default: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
-                        }
-                    } else { Console.WriteLine("| Invalid Input! |"); return; }
-                    break;
+                case BattleOptions.Attack: InBattle_Attack(); break;
                 case BattleOptions.Inventory: InInventory(); return;
                 case BattleOptions.Status: InStatus(); return;
                 case BattleOptions.Escape: SpawnManager.RemoveAllMonsters(); GameManager.GameState = GameState.Dungeon; return;
@@ -404,6 +421,28 @@ namespace TextRPG
                 else GameManager.SelectedCharacter.OnDamage(AttackType.Magic, monster.AttackStat.MagicAttack);
             }
         }
+
+        /// <summary>
+        /// Attack Mechanism of player
+        /// </summary>
+        private void InBattle_Attack()
+        {
+            UIManager.ShowMonsterList(SpawnManager);
+            if (!int.TryParse(Console.ReadLine(), out int ind)) { Console.WriteLine("| Invalid Input! |"); return; }
+            if (ind > 0 && ind <= SpawnManager.GetMonsterCount())
+            {
+                AttackType? type = GameManager.SelectedCharacter.EquippedWeapon?.AttackType;
+                switch (type)
+                {
+                    case AttackType.Close: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
+                    case AttackType.Long: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.RangeAttack); break;
+                    case AttackType.Magic: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.MagicAttack); break;
+                    default: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
+                }
+            }
+            else { Console.WriteLine("| Invalid Input! |"); return; }
+        }
+        #endregion
 
         /// <summary>
         /// Runs the game.
@@ -428,16 +467,12 @@ namespace TextRPG
     {
         static void Main(string[] args)
         {
-            // Network Connection -> Not actually...
-            while(NetworkManager.LoginOrLogup()) 
-            {
-                // Game Start UI
-                UIManager.StartUI("Welcome aboard to the Journey of Spartan");
-                InGame inGame = new(new GameManager(), new SpawnManager());
-                
-                // Main Game
-                inGame.MainGame();
-            }
+            // Game Start UI
+            UIManager.StartUI();
+            InGame inGame = new(new GameManager(), new SpawnManager());
+
+            // Main Game
+            inGame.MainGame();
         }
     }
 }

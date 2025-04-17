@@ -1,4 +1,4 @@
-﻿namespace TextRPG
+namespace TextRPG
 {
     #region InGame Options
     public enum IdleOptions
@@ -63,6 +63,12 @@
     #endregion
 
     #region Game Mechanism Sources
+    public enum GameOption
+    {
+        NewGame,
+        Continue,
+        Exit,
+    }
     public enum GameState
     {
         MainMenu,

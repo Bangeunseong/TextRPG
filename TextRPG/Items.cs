@@ -65,19 +65,19 @@ namespace TextRPG
     abstract class Armor : IPurchasable, ISellable, IWearable, IPickable
     {
         // Field
-        private string _name;
-        private Rarity _rarity;
-        private DefendStat _defendStat;
-        private bool _isEquipped;
-        private int _price;
+        private string name;
+        private Rarity rarity;
+        private DefendStat defendStat;
+        private bool isEquipped;
+        private int price;
 
         // Property
-        public string Name { get { return _name; } protected set { _name = value; } }
-        public DefendStat DefendStat { get { return _defendStat; } protected set { _defendStat = value; } }
-        public Rarity Rarity { get { return _rarity; } protected set { _rarity = value; } }
+        public string Name { get { return name; } protected set { name = value; } }
+        public DefendStat DefendStat { get { return defendStat; } protected set { defendStat = value; } }
+        public Rarity Rarity { get { return rarity; } protected set { rarity = value; } }
         public ArmorPosition ArmorPosition { get; protected set; }
-        public bool IsEquipped { get { return _isEquipped; } set { _isEquipped = value; } }
-        public int Price { get { return _price; } protected set { _price = value; } }
+        public bool IsEquipped { get { return isEquipped; } set { isEquipped = value; } }
+        public int Price { get { return price; } protected set { price = value; } }
         public ItemCategory Category { get; private set; } = ItemCategory.Armor;
 
         // Constructor
@@ -108,7 +108,7 @@ namespace TextRPG
             character.EquippedArmor[(int)(ArmorPosition)] = this;
             IsEquipped = true;
             character.DefendStat += DefendStat;
-            Console.WriteLine($"| {_name} equipped! |");
+            Console.WriteLine($"| {name} equipped! |");
         }
 
         public void OnUnequipped(Character character)
@@ -117,14 +117,14 @@ namespace TextRPG
             character.EquippedArmor[(int)ArmorPosition] = null;
             IsEquipped = false;
             character.DefendStat -= DefendStat;
-            Console.WriteLine($"| {_name} unequipped! |");
+            Console.WriteLine($"| {name} unequipped! |");
         }
         
         public virtual void OnPurchased(Character character) 
         {
             if (character.Currency < Price) { Console.WriteLine("| Not enough Money! |"); return; }
             character.Currency -= Price;
-            Console.WriteLine($"| {_name} is purchased! |"); 
+            Console.WriteLine($"| {name} is purchased! |"); 
         }
         
         public void OnSold(Character character)
@@ -137,14 +137,14 @@ namespace TextRPG
         
         public virtual void OnPicked(Character character)
         {
-            Console.WriteLine($"| Picked {_name}! |");
+            Console.WriteLine($"| Picked {name}! |");
         }
 
         public void OnDropped(Character character)
         {
             if (IsEquipped) { Console.WriteLine($"| Not possible to drop!, {Name} is equipped! |"); return; }
             character.Armors.Remove(this);
-            Console.WriteLine($"| Dropped {_name}! |");
+            Console.WriteLine($"| Dropped {name}! |");
         }
         
         public override string ToString()
@@ -292,18 +292,18 @@ namespace TextRPG
     abstract class Weapon : IPurchasable, ISellable, IWearable, IPickable
     {
         // Field
-        private string _name;
-        private Rarity _rarity;
-        private AttackStat _attackStat;
-        private bool _isEquipped;
-        private int _price;
+        private string name;
+        private Rarity rarity;
+        private AttackStat attackStat;
+        private bool isEquipped;
+        private int price;
 
         // Property
-        public string Name { get { return _name; } protected set { _name = value; } }
-        public AttackStat AttackStat { get { return _attackStat; } protected set { _attackStat = value; } }
-        public Rarity Rarity { get { return _rarity; } protected set { _rarity = value; } }
-        public bool IsEquipped { get { return _isEquipped; } set { _isEquipped = value; } }
-        public int Price { get { return _price; } protected set { _price = value; } }
+        public string Name { get { return name; } protected set { name = value; } }
+        public AttackStat AttackStat { get { return attackStat; } protected set { attackStat = value; } }
+        public Rarity Rarity { get { return rarity; } protected set { rarity = value; } }
+        public bool IsEquipped { get { return isEquipped; } set { isEquipped = value; } }
+        public int Price { get { return price; } protected set { price = value; } }
         public ItemCategory Category { get; private set; } = ItemCategory.Weapon;
         public AttackType AttackType { get; protected set; }
 
@@ -333,7 +333,7 @@ namespace TextRPG
             character.EquippedWeapon = this;
             IsEquipped = true;
             character.AttackStat += AttackStat;
-            Console.WriteLine($"| {_name} equipped! |");
+            Console.WriteLine($"| {name} equipped! |");
         }
 
         public void OnUnequipped(Character character)
@@ -342,14 +342,14 @@ namespace TextRPG
             character.EquippedWeapon = null;
             IsEquipped = false;
             character.AttackStat -= AttackStat;
-            Console.WriteLine($"| {_name} unequipped! |");
+            Console.WriteLine($"| {name} unequipped! |");
         }
 
         public virtual void OnPurchased(Character character) 
         { 
             if(character.Currency < Price) { Console.WriteLine("| Not enough Money! |"); return; }
             character.Currency -= Price; 
-            Console.WriteLine($"| {_name} is purchased |"); 
+            Console.WriteLine($"| {name} is purchased |"); 
         }
         
         public void OnSold(Character character)
@@ -361,14 +361,14 @@ namespace TextRPG
         
         public virtual void OnPicked(Character character)
         {
-            Console.WriteLine($"| Picked {_name}! |");
+            Console.WriteLine($"| Picked {name}! |");
         }
 
         public void OnDropped(Character character)
         {
             if (IsEquipped) { Console.WriteLine($"| {Name} is equipped! |"); return; }
             character.Weapons.Remove(this);
-            Console.WriteLine($"| Dropped {_name}! |");
+            Console.WriteLine($"| Dropped {name}! |");
         }
 
         public override string ToString()
@@ -745,7 +745,7 @@ namespace TextRPG
     /// </summary>
     static class ItemLists
     {
-        public static readonly Armor[] armors = {
+        public static readonly Armor[] Armors = {
             new Helmet("Steel Helmet", new DefendStat(3.1f, 2.4f, 1.2f), 15, Rarity.Common),
             new ChestArmor("Steel ChestArmor", new DefendStat(5.1f, 4.2f, 3.3f), 30, Rarity.Common),
             new LegArmor("Steel LegArmor", new DefendStat(1.5f, 1.3f, 0f), 8, Rarity.Common),
@@ -753,13 +753,13 @@ namespace TextRPG
             new Guntlet("Steel Guntlet", new DefendStat(1.5f, 1.3f, 0f), 8, Rarity.Common),
         };
 
-        public static readonly Weapon[] weapons = {
+        public static readonly Weapon[] Weapons = {
             new Sword("Steel Sword", new AttackStat(10f, 0f, 0f), 20, Rarity.Common),
             new Bow("Wooden Bow", new AttackStat(0f, 10f, 0f), 20, Rarity.Common),
             new Staff("Steel Staff", new AttackStat(0f,0f,10f), 20, Rarity.Common),
         };
 
-        public static readonly Consumables[] consumables =
+        public static readonly Consumables[] Consumables =
         {
             new HealthPotion("Small Health Potion", 20, 5, Rarity.Common),
             new HealthPotion("Medium Health Potion", 40, 10, Rarity.Exclusive),

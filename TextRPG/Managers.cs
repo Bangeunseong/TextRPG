@@ -1,91 +1,95 @@
-﻿namespace TextRPG
+using System.Collections;
+using System.Text;
+
+namespace TextRPG
 {
+    /// <summary>
+    /// Contains UI Materials
+    /// </summary>
     static class UIManager
     {
-        public static void LoginUI()
+        public static void StartUI()
         {
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("|\"Login Page\" |");
-            Console.WriteLine("| 1. Login |");
-            Console.WriteLine("| 2. Logup |");
-            Console.WriteLine("| 3. Exit |");
-            Console.WriteLine("| ------------- |");
-            Console.Write("Select Option : ");
-        }
-
-        public static void StartUI(string Title)
-        {
-            Console.WriteLine();
-            Console.WriteLine("| ---------------------------------------- |");
-            Console.WriteLine($"| {Title} |");
-            Console.WriteLine("| ---------------------------------------- |");
-            Console.WriteLine("| Press enter key to start... |");
-            Console.ReadLine();
+            foreach(string line in Miscs.GameStart) Console.WriteLine(line);
+            Console.ReadKey();
         }
 
         public static void Before_JobSelectionUI()
         {
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("| 1. Choose Job |");
-            Console.WriteLine("| 2. Back to Login Page |");
-            Console.WriteLine("| ------------- |");
-            Console.Write("Select Option : ");
+            Console.WriteLine("\n| 1. Choose Job |");
+            Console.Write("Choose Action : ");
         }
 
         public static void InventoryUI(Character character)
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------- |");
+            Console.WriteLine("\n| ----- Inventory ----- |");
             Console.WriteLine("|\"Armors\" |");
             int i = 1;
             foreach(Armor armor in character.Armors) { Console.WriteLine($"{i++}. {armor}"); }
-            Console.WriteLine("|\"Weapons\" |");
+            Console.WriteLine("\n|\"Weapons\" |");
             i = 1;
             foreach (Weapon weapon in character.Weapons) { Console.WriteLine($"{i++}. {weapon}"); }
-            Console.WriteLine("|\"Potions\" |");
+            Console.WriteLine("\n|\"Potions\" |");
             i = 1;
             foreach (Consumables potion in character.Consumables) { Console.WriteLine($"{i++}. {potion}"); }
             Console.WriteLine("| ------------- |");
+            Console.WriteLine("\n| Actions |");
+            Console.WriteLine("| 1. Back |");
+            Console.WriteLine("| 2. Select Item |");
+            Console.Write("Choose Action : ");
+        }
+
+        public static void InventoryUI_Equipment()
+        {
+            Console.WriteLine("\n| ----- \"Equipment\" ----- |");
+            Console.WriteLine("| 1. Back |");
+            Console.WriteLine("| 2. Equip |");
+            Console.WriteLine("| 3. Unequip |");
+            Console.WriteLine("| 4. Drop |");
+            Console.Write("Choose Action : ");
+        }
+
+        public static void InventoryUI_Consumable()
+        {
+            Console.WriteLine("\n| ----- \"Consumable\" ----- |");
+            Console.WriteLine("| 1. Back |");
+            Console.WriteLine("| 2. Use  |");
+            Console.Write("Choose Action : ");
         }
 
         public static void ShopUI()
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("| Welcome to Henry's Shop! |");
-            
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine();
-            Console.WriteLine("| Options |");
+            Console.WriteLine("\n| ----- Welcome to Henry's Shop! ----- |");
+            foreach(string line in Miscs.Henry) Console.WriteLine(line);
+            Console.WriteLine("| ---------------------------------- |");
+            Console.WriteLine("\n| Actions |");
             Console.WriteLine("| 1. Back |");
             Console.WriteLine("| 2. Buy |");
             Console.WriteLine("| 3. Sell |");
-            Console.Write("Select Option : ");
+            Console.Write("\nChoose Action : ");
         }
 
         public static void ShowShopList()
         {
-            Console.WriteLine();
             int i = 1;
-            Console.WriteLine("| ------------- |");
+            Console.WriteLine("\n| ----- Buy Items ----- |");
             Console.WriteLine("|\"Armors\" |");
-            foreach (Armor armor in ItemLists.armors) { Console.WriteLine($"{i++}. {armor}"); }
+            foreach (Armor armor in ItemLists.Armors) { Console.WriteLine($"{i++}. {armor}"); }
             i = 1;
             Console.WriteLine("|\"Weapons\" |");
-            foreach (Weapon weapon in ItemLists.weapons) { Console.WriteLine($"{i++}. {weapon}"); }
+            foreach (Weapon weapon in ItemLists.Weapons) { Console.WriteLine($"{i++}. {weapon}"); }
             i = 1;
             Console.WriteLine("|\"Potions\" |");
-            foreach (Consumables potion in ItemLists.consumables) { Console.WriteLine($"{i++}. {potion}"); }
-            Console.WriteLine("| ------------- |");
-            Console.Write("What do you want to buy? ( Type [ Category,Index ] ) : ");
+            foreach (Consumables potion in ItemLists.Consumables) { Console.WriteLine($"{i++}. {potion}"); }
+            Console.WriteLine("| --------------------- |");
+            Console.Write("\nWhat do you want to buy? ( Type [ Category,Index ] ) : ");
         }
 
         public static void ShowItemList(Character character)
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("|\"Armors\" |");
             int i = 1;
+            Console.WriteLine("\n| ----- Sell Items ----- |");
+            Console.WriteLine("|\"Armors\" |");
             foreach (Armor armor in character.Armors) { Console.WriteLine($"{i++}. {armor}"); }
             Console.WriteLine("|\"Weapons\" |");
             i = 1;
@@ -93,144 +97,276 @@
             Console.WriteLine("|\"Potions\" |");
             i = 1;
             foreach (Consumables potion in character.Consumables) { Console.WriteLine($"{i++}. {potion}"); }
-            Console.WriteLine("| ------------- |");
-            Console.Write("What do you want to sell? ( Type [ Category,Index ] ) : ");
+            Console.WriteLine("| ---------------------- |");
+            Console.Write("\nWhat do you want to sell? ( Type [ Category,Index ] ) : ");
         }
 
         public static void ShowMonsterList(SpawnManager spawnManager)
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------- |");
+            Console.WriteLine("\n| ----- Battle ----- |");
             Console.WriteLine("| \"Monsters\" |");
             int i = 1;
             foreach (Monster monster in spawnManager.spawnedMonsters)
                 Console.WriteLine($"| {i++}. {monster.Name} | Health : {monster.Health} |");
-            Console.Write("Select Monster : ");
+            Console.WriteLine("| ------------------ |");
+            Console.Write("\nChoose Monster to Attack : ");
         }
 
         public static void CabinUI()
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("| Welcome to Alby's Cabin! |");
+            Console.WriteLine("\n| ----- Welcome to Alby's Cabin! ----- |");
+            foreach(string line in Miscs.Alby) Console.WriteLine(line);
+            Console.WriteLine("\n| Room Options |");
             Console.WriteLine("| 1. Normal Room (Heals 50% of your Max Health, 20G) |");
             Console.WriteLine("| 2. Comfy Room (Heals 75% of your Max Health, 40G) |");
             Console.WriteLine("| 3. Emperror Room (Heals 100% of your Max Health, 60G)");
-            Console.WriteLine("| ------------- |");
-            Console.Write("Select Option : ");
+            Console.WriteLine("| ------------------------------------ |");
+            Console.Write("\nChoose Room Option : ");
         }
 
         public static void StatusUI(Character character)
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("| \"Character Info.\" |");
-            Console.WriteLine($"| \"Name\" : {character.Name} |");
+            Console.WriteLine("\n| ----- \"Character Info.\" ----- |");
+            Console.WriteLine($"\n| \"Name\" : {character.Name} |");
             Console.WriteLine($"| \"Lv {character.Level:D2}\" |");
             Console.WriteLine($"| \"Experience\" : {character.Exp} |");
             Console.WriteLine($"| \"Health\" : {character.Health} |");
             Console.WriteLine($"| \"Currency\" : {character.Currency} |");
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("| \"Status\" |");
+
+            Console.WriteLine("\n| ----- \"Status\" ----- |");
             Console.WriteLine($"| \"Attack\" : {character.AttackStat.Attack} |");
             Console.WriteLine($"| \"Range Attack\" : {character.AttackStat.RangeAttack} |");
             Console.WriteLine($"| \"Magic Attack\" : {character.AttackStat.MagicAttack} |");
             Console.WriteLine($"| \"Defence\" : {character.DefendStat.Defend} |");
             Console.WriteLine($"| \"Range Defence\" : {character.DefendStat.RangeDefend} |");
             Console.WriteLine($"| \"Magic Defence\" : {character.DefendStat.MagicDefend} |");
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("| \"Items\" |");
-            Console.WriteLine("|\"Armors\" |");
+
+            Console.WriteLine("\n| ----- \"Armors\" ----- |");
             foreach (Armor armor in character.Armors) { Console.WriteLine($"| {armor} |"); }
-            Console.WriteLine("|\"Weapons\" |");
+            Console.WriteLine("| ----- \"Weapons\" ----- |");
             foreach (Weapon weapon in character.Weapons) { Console.WriteLine($"| {weapon} |"); }
-            Console.WriteLine("| \"Potions\" |");
+            Console.WriteLine("| ----- \"Potions\" ----- |");
             foreach(Consumables consumable in character.Consumables) { Console.WriteLine($"| {consumable} |"); }
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine("Press enter key to continue...");
-            Console.ReadLine();
+            Console.WriteLine("\n| Press any key to continue... |");
+            Console.ReadKey();
+        }
+
+        public static void KillCountUI(int KillCount, int Quota)
+        {
+            Console.WriteLine("\n| --------------------------------------------- |");
+            Console.WriteLine($"| Killed Monsters : {KillCount}, Quota : {Quota} |");
+            Console.WriteLine("| ----------------------------------------------- |");
+        }
+
+        public static void MonsterEncounterUI(SpawnManager spawnManager)
+        {
+            StringBuilder sb = new();
+            int i = 0;
+
+            Console.WriteLine("\n| ---------------------------------- |");
+            Console.ForegroundColor = ConsoleColor.Green;
+            foreach(Monster monster in spawnManager.spawnedMonsters)
+            {
+                if(i != 0) sb.Append(", ");
+                sb.Append(monster.Name); i++;
+
+                if(monster.AttackType == AttackType.Close) foreach (string line in Miscs.Goblin) Console.WriteLine(line);
+                else if(monster.AttackType == AttackType.Long) foreach (string line in Miscs.GoblinArcher) Console.WriteLine(line);
+                else foreach (string line in Miscs.GoblinWizard) Console.WriteLine(line);
+            }
+            Console.ResetColor();
+            Console.WriteLine("| ---------------------------------- |");
+
+            Console.WriteLine($"\n| Warning! : Encountered {sb} |");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
+        public static void NoMonsterFoundUI()
+        {
+            int ind = new Random().Next(Miscs.Quotes.Length);
+            Console.WriteLine($"\n| Nothing Found, {Miscs.Quotes[ind]}");
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
+        public static void GameOverUI()
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Red;
+            foreach(string line in Miscs.GameOver) Console.WriteLine(line);
+            Console.ResetColor();
+
+            Console.WriteLine("\nPress any key to revive(Loses 100G)...");
+            Console.ReadKey();
+        }
+
+        public static void GameOptionUI()
+        {
+            Console.WriteLine($"\n| ----- Game Options ----- |");
+            Console.WriteLine();
+            int i = 1;
+            foreach (var opt in Enum.GetValues(typeof(GameOption)))
+            {
+                Console.WriteLine($"| {i++}. {opt} |");
+            }
+            Console.Write("\nChoose Action : ");
         }
 
         public static void BaseUI(string headLine, Type type)
         {
-            Console.WriteLine();
-            Console.WriteLine("| ------------- |");
-            Console.WriteLine($"| {headLine} |");
+            Console.WriteLine($"\n| ----- {headLine} ----- |");
             Console.WriteLine($"| Current Time : {GameManager.GameTime} |");
+            Console.WriteLine();
             int i = 1;
             foreach (var opt in Enum.GetValues(type))
             {
                 Console.WriteLine($"| {i++}. {opt} |");
             }
-            Console.WriteLine("| ------------- |");
-            Console.Write("Select Option : ");
+            Console.Write("\nChoose Action : ");
         }
     }
 
-    static class NetworkManager
+    /// <summary>
+    /// Contains Quotes and Ascii Arts
+    /// </summary>
+    static class Miscs
     {
-        private static string id;
-        private static string pass;
+        public static string[] Quotes = { "It's cold and silent.", "My body starts shivering", "I miss the alby's cabin.",
+                                          "I should not come down here.", "It feels like someone is watching...",
+                                          "I think i'm lost...", "It's dark and moist...", "This place is freaking me out...",
+                                          "I hate bats...", "Something feels wrong...", "I miss the henry's shop."};
 
-        public static bool IsGuest { get; private set; } = true;
-        public static string Rank { get; private set; } = "Bronze";
-        public static bool IsNetworkActive { get; private set; } = true;
-
-        /// <summary>
-        /// Prints Login and Logup UI
-        /// </summary>
-        /// <returns>Returns true, when successfully logged in.</returns>
-        public static bool LoginOrLogup()
+        public static string[] Goblin = new string[]
         {
-            while (true)
-            {
-                UIManager.LoginUI();
+            @"                *-|=> ",
+            @"       ,      ,       ",
+            @"      /(.-""-.)\      ",
+            @"  |\  \/      \/  /|  ",
+            @"  | \ / =.  .= \ / |  ",
+            @"  \( \   o\/o   / )/  ",
+            @"   \_, '-/  \-' ,_/   ",
+            @"     /   \__/   \     ",
+            @"     \ \__/\__/ /     ",
+            @"   ___\ \|--|/ /___   ",
+            @" /`    \      /    `\ ",
+            @" \__.   |    |   .__/ ",
+            @"     \  |    |  /     ",
+            @"      \_|____|_/      "
+        };
 
-                if (int.TryParse(Console.ReadLine(), out int opt))
-                {
-                    if (opt >= 3) { IsNetworkActive = false; return false; }
-                    switch (opt)
-                    {
-                        case 1: if (Login()) { IsGuest = false; return true; } Console.WriteLine("Wrong Id or Password!"); break;
-                        case 2:
-                            if (Logup())
-                            {
-                                if (Login()) { IsGuest = false; return true; }
-                                Console.WriteLine("Wrong Id or Password!"); break;
-                            }
-                            Console.WriteLine("Failed to SignUp!"); break;
-                        default: Console.WriteLine("Something is wrong!"); break;
-                    }
-                }
-            }
-        }
-
-        private static bool Logup()
+        public static string[] GoblinArcher = new string[]
         {
-            Console.WriteLine();
+            @"          /\    >--=> ",
+            @"         /__\         ",
+            @"      \__\  /__/      ",
+            @"      /(.-""-.)\      ",
+            @"  |\  \/      \/  /|  ",
+            @"  | \ / =.  .= \ / |  ",
+            @"  \( \   o\/o   / )/  ",
+            @"   \_, '-/  \-' ,_/   ",
+            @"     /   \__/   \     ",
+            @"     \ \__/\__/ /     ",
+            @"   ___\ \|--|/ /___   ",
+            @" /`    \      /    `\ ",
+            @" \__.   |    |   .__/ ",
+            @"     \  |    |  /     ",
+            @"      \_|____|_/      "
+        };
 
-            if (IsGuest)
-            {
-                Console.WriteLine("| Sign Up |");
-                Console.Write("Id : "); id = Console.ReadLine();
-                Console.Write("Password : "); pass = Console.ReadLine();
-                return true;
-            }
-            else return false;
-        }
-
-        private static bool Login()
+        public static string[] GoblinWizard = new string[]
         {
-            Console.WriteLine();
+            @"          /\    *--=* ",
+            @"         /__\         ",
+            @"        (/()\)        ",
+            @"     \_,/\__/\,_/     ",
+            @"      /(.-""-.)\      ",
+            @"  |\  \/      \/  /|  ",
+            @"  | \ / =.  .= \ / |  ",
+            @"  \( \   o\/o   / )/  ",
+            @"   \_, '-/  \-' ,_/   ",
+            @"     /   \__/   \     ",
+            @"     \ \__/\__/ /     ",
+            @"   ___\ \|--|/ /___   ",
+            @" /`    \      /    `\ ",
+            @" \__.   |    |   .__/ ",
+            @"     \  |    |  /     ",
+            @"      \_|____|_/      "
+        };
 
-            string Id, Pass;
-            Console.WriteLine("| Sign In |");
-            Console.Write("Id : "); Id = Console.ReadLine();
-            Console.Write("Password : "); Pass = Console.ReadLine();
-            return Id == NetworkManager.id && Pass == NetworkManager.pass;
-        }
+        public static string[] Henry = new string[]
+        {
+            @"        /     \        ",
+            @"       / (/@\) \       ",
+            @"   \__/_________\__/   ",
+            @"     |  O     O  |     ",
+            @"     |     ^     |     ",
+            @"     |   \___/   |     ",
+            @"      \_________/      ",
+            @"   ___/   |||   \___   ",
+            @" /`    \       /    `\ ",
+            @" \__.   |     |   .__/ ",
+            @"     \  |     |  /     ",
+            @"      \_|_____|_/      ",
+        };
+
+        public static string[] Alby = new string[]
+        {
+            @"        /     \        ",
+            @"       / -(+)- \       ",
+            @"    __/_________\__    ",
+            @"   / |  O     O  | \   ",
+            @"     |     ^     |     ",
+            @"     |   '---'   |     ",
+            @"      \_________/      ",
+            @"   ___/   |||   \___   ",
+            @" /`    \       /    `\ ",
+            @" \__.   |     |   .__/ ",
+            @"     \  |     |  /     ",
+            @"      \_|_____|_/      ",
+        };
+
+        public static string[] GameStart = new string[]
+        {
+            @"╔═══════════════════════════════════════════════════════════╗",
+            @"║                                                           ║",
+            @"║                           /\                              ║",
+            @"║                          /  \                             ║",
+            @"║                         |    |                            ║",
+            @"║                         | [] |                            ║",
+            @"║                         |____|                            ║",
+            @"║                        /| || |\                           ║",
+            @"║                       /_|_||_|_\                          ║",
+            @"║                         ||  ||                            ║",
+            @"║                         ()  ()                            ║",
+            @"║                      __/||  ||\__                         ║",
+            @"║                     /___/_  _\___\                        ║",
+            @"║                           ||                              ║",
+            @"║                           ||                              ║",
+            @"║                           ||                              ║",
+            @"║                          /__\                             ║",
+            @"║                                                           ║",
+            @"║                     GOBLIN__SLAYER                        ║",
+            @"║                                                           ║",
+            @"║                 PRESS ANY KEY TO START!                   ║",
+            @"╚═══════════════════════════════════════════════════════════╝",
+        };
+
+        public static string[] GameOver = new string[]
+        {
+            @"| ======================================================================== |",
+            @"|  ██████   █████  ███    ███ ███████     ██████  ██    ██ ███████ ███████ |",
+            @"| ██       ██   ██ ████  ████ ██         ██    ██ ██    ██ ██      ██   ██ |",
+            @"| ██   ███ ███████ ██ ████ ██ █████      ██    ██ ██    ██ ███████ █████   |",
+            @"| ██    ██ ██   ██ ██  ██  ██ ██         ██    ██ ██    ██ ██      ██   ██ |",
+            @"|  ██████  ██   ██ ██      ██ ███████     ██████   ██████  ███████ ██   ██ |",
+            @"| ======================================================================== |",
+    };
     }
 
+    /// <summary>
+    /// Manage spawning monsters
+    /// </summary>
     class SpawnManager
     {
         public List<Monster> spawnedMonsters = new();
@@ -248,54 +384,88 @@
                 if (MonsterLists.monsters[type].AttackType == AttackType.Close)
                 {
                     GoblinWarrior monster = new GoblinWarrior((GoblinWarrior)MonsterLists.monsters[type]);
+                    monster.Level = character.Level;
                     monster.OnDeath += () =>
                     {
-                        character.Currency += 50;
-                        character.OnEarnExp(monster.Exp);
-                        KilledMonsterCount++;
-                        RemoveMonster(monster);
-                        Console.WriteLine($"| {monster.Name} is dead! |");
+                        RemoveMonster(character, monster, 50);
                     };
                     AddMonster(monster);
                 }
                 else if (MonsterLists.monsters[type].AttackType == AttackType.Long)
                 {
                     GoblinArcher monster = new GoblinArcher((GoblinArcher)MonsterLists.monsters[type]);
+                    monster.Level = character.Level;
                     monster.OnDeath += () =>
                     {
-                        character.Currency += 65;
-                        character.OnEarnExp(monster.Exp);
-                        KilledMonsterCount++;
-                        RemoveMonster(monster);
-                        Console.WriteLine($"| {monster.Name} is dead! |");
+                        RemoveMonster(character, monster, 65);
                     };
                     AddMonster(monster);
                 }
                 else if (MonsterLists.monsters[type].AttackType == AttackType.Magic)
                 {
                     GoblinMage monster = new GoblinMage((GoblinMage)MonsterLists.monsters[type]);
+                    monster.Level = character.Level;
                     monster.OnDeath += () =>
                     {
-                        character.Currency += 80;
-                        character.OnEarnExp(monster.Exp);
-                        KilledMonsterCount++;
-                        RemoveMonster(monster);
-                        Console.WriteLine($"| {monster.Name} is dead! |");
+                        RemoveMonster(character, monster, 80);
                     };
                     AddMonster(monster);
                 }
             }
         }
-
+        
+        // Public Methods
+        public int GetMonsterCount() { return spawnedMonsters.Count; }
         public void ResetKillCount() { KilledMonsterCount = 0; }
-
-        public int GetMonsterCount() { return spawnedMonsters.Count; }  
         public void RemoveAllMonsters() { spawnedMonsters.Clear(); }
 
+        // Private Methods
         private void AddMonster(Monster monster) { spawnedMonsters.Add(monster); }
-        private void RemoveMonster(Monster monster) { spawnedMonsters.Remove(monster); }
+        private void RemoveMonster(Character character, Monster monster, int currency) {
+            Console.WriteLine($"| {monster.Name} is dead! |");
+            Console.WriteLine($"| {character.Name} gets {currency}G |");
+            KilledMonsterCount++;
+            character.Currency += currency;
+            character.OnEarnExp(monster.Exp);
+            GetRandomConsumable(monster.Level)?.OnPicked(character);
+            spawnedMonsters.Remove(monster);
+        }
+        private Consumables? GetRandomConsumable(int level)
+        {
+            if (new Random().Next(1, 101) % 2 != 0) return null;
+
+            IEnumerable<Consumables> filteredItems;
+            if(level > 0 && level <= 15)
+            {
+                filteredItems = from item in ItemLists.Consumables
+                                where item.Rarity == Rarity.Common || item.Rarity == Rarity.Exclusive
+                                select item;
+            } else if(level > 15 && level <= 30)
+            {
+                filteredItems = from item in ItemLists.Consumables
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare
+                                select item;
+            } else if(level > 30 && level <= 50)
+            {
+                filteredItems = from item in ItemLists.Consumables
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero
+                                select item;
+            }
+            else
+            {
+                filteredItems = from item in ItemLists.Consumables
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero || item.Rarity == Rarity.Legend
+                                select item;
+            }
+
+            int ind = new Random().Next(filteredItems.Count());
+            return filteredItems.ElementAt(ind);
+        }
     }
 
+    /// <summary>
+    /// Manage controls of overall game statements and functions
+    /// </summary>
     class GameManager
     {
         // Static Field
@@ -311,63 +481,47 @@
         // Constructor
         public GameManager(int groundLevel = 1) { GroundLevel = groundLevel; }
 
-        /// <summary>
-        /// Prints Job Selection Interface
-        /// </summary>
-        /// <returns>Returns true, if job is selected.</returns>
-        public bool SelectGameOption()
-        {
-            UIManager.Before_JobSelectionUI();
-
-            if(int.TryParse(Console.ReadLine(), out int opt))
-            {
-                switch(opt)
-                {
-                    case 1: if(Switch_Job()) GameState = GameState.Town; break;
-                    case 2: return false;
-                }
-            }
-            return true;
-        }
-
+        // Methods
+        
         /// <summary>
         /// Job Selection UI will be displayed.
         /// This method will return true if the job selected successfully.
         /// If not, it will return false.
         /// </summary>
         /// <returns>Returns true, if job selected successfully. If not, returns false.</returns>
-        public bool Switch_Job()
+        public void Switch_Job()
         {
-            Console.WriteLine();
-            Console.WriteLine("| 1: Warrior | 2: Wizard | 3. Archer |");
-            Console.Write("Select Job : ");
-            if (int.TryParse(Console.ReadLine(), out int job))
+            int option;
+            while (true)
             {
-                switch ((Job)(job - 1))
-                {
-                    case Job.Warrior: 
-                        Console.WriteLine("| You selected Warrior! |");
-                        Console.Write("Type the name of your warrior : ");
-                        SelectedCharacter = new Warrior(new CharacterStat(Console.ReadLine(), 150, 1, new AttackStat(30f, 6f, 1f), new DefendStat(25, 15, 5)));
-                        SelectedCharacter.OnDeath += () => GameState = GameState.GameOver;
-                        break;
-                    case Job.Wizard: 
-                        Console.WriteLine("| You selected Wizard! |");
-                        Console.Write("Type the name of your wizard : ");
-                        SelectedCharacter = new Wizard(new CharacterStat(Console.ReadLine(), 100, 1, new AttackStat(1f, 6f, 30f), new DefendStat(5, 10, 30)));
-                        SelectedCharacter.OnDeath += () => GameState = GameState.GameOver;
-                        break;
-                    case Job.Archer: 
-                        Console.WriteLine("| You selected Archer! |");
-                        Console.Write("Type the name of your archer : ");
-                        SelectedCharacter = new Archer(new CharacterStat(Console.ReadLine(), 120, 1, new AttackStat(6f, 30f, 1f), new DefendStat(15, 25, 5)));
-                        SelectedCharacter.OnDeath += () => GameState = GameState.GameOver;
-                        break;
-                    default: return false;
-                }
+                Console.WriteLine("\n| 1: Warrior | 2: Wizard | 3. Archer |");
+                Console.Write("Select Job : ");
+                if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); }
+                else { option = Math.Clamp(opt, 1, Enum.GetValues(typeof(Job)).Length); break; }
             }
-            else { return false; }
-            return true;
+
+
+            switch ((Job)(option - 1))
+            {
+                case Job.Warrior:
+                    Console.WriteLine("| You selected Warrior! |");
+                    Console.Write("Type the name of your warrior : ");
+                    SelectedCharacter = new Warrior(new CharacterStat(Console.ReadLine(), 150, 1, new AttackStat(30f, 6f, 1f), new DefendStat(25, 15, 5)), 100, 0);
+                    SelectedCharacter.OnDeath += GameOver;
+                    break;
+                case Job.Wizard:
+                    Console.WriteLine("| You selected Wizard! |");
+                    Console.Write("Type the name of your wizard : ");
+                    SelectedCharacter = new Wizard(new CharacterStat(Console.ReadLine(), 100, 1, new AttackStat(1f, 6f, 30f), new DefendStat(5, 10, 30)), 100, 0);
+                    SelectedCharacter.OnDeath += GameOver;
+                    break;
+                case Job.Archer:
+                    Console.WriteLine("| You selected Archer! |");
+                    Console.Write("Type the name of your archer : ");
+                    SelectedCharacter = new Archer(new CharacterStat(Console.ReadLine(), 120, 1, new AttackStat(6f, 30f, 1f), new DefendStat(15, 25, 5)), 100, 0);
+                    SelectedCharacter.OnDeath += GameOver;
+                    break;
+            }
         }
 
         /// <summary>
@@ -386,10 +540,25 @@
             }
         }
 
+        /// <summary>
+        /// Increase Dungeon level when character reached the quota.
+        /// </summary>
         public void GoToNextLevel()
         {
             Console.WriteLine("| Quota reached. Moving to next level! |");
+            Console.WriteLine("| Press any key to continue... |");
+            Console.ReadKey();
             Quota = 10 + (GroundLevel - 1) * 5;
+        }
+
+        private void GameOver()
+        {
+            UIManager.GameOverUI();
+            GameState = GameState.GameOver;
+
+            SelectedCharacter.OnRevive();
+            GameState = GameState.Town;
+            GameTime = GameTime.Afternoon;
         }
     }
 }
