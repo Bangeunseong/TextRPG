@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace TextRPG
 {
     class InGame
@@ -74,7 +72,7 @@ namespace TextRPG
             Console.WriteLine("| Have a sweet dream! |");
 
             GameManager.SelectedCharacter.Currency -= (option * 20);
-            GameManager.SelectedCharacter.Health += GameManager.SelectedCharacter.MaxHealth * (0.5f + (0.25f * (option - 1)));
+            GameManager.SelectedCharacter.OnHeal(GameManager.SelectedCharacter.MaxHealth * (0.5f + (0.25f * (option - 1))));
             if (GameManager.GameTime == GameTime.Afternoon) GameManager.GameTime = GameTime.Night;
             else { GameManager.GameTime = GameTime.Afternoon; GameManager.RemoveAllBuffs(); }
         }
@@ -207,8 +205,8 @@ namespace TextRPG
                 switch ((SettingOptions)(opt - 1))
                 {
                     case SettingOptions.Back: return;
-                    case SettingOptions.Save: break;
-                    case SettingOptions.Load: break;
+                    case SettingOptions.Save: GameManager.SaveGame(); break;
+                    case SettingOptions.Load: GameManager.LoadGame(); break;
                     case SettingOptions.EndGame: GameManager.GameState = GameState.MainMenu; Console.WriteLine(); return;
                     default: Console.WriteLine("Invalid Input"); break;
                 }

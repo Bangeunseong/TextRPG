@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace TextRPG
 {
@@ -361,7 +363,7 @@ namespace TextRPG
             @"| ██    ██ ██   ██ ██  ██  ██ ██         ██    ██ ██    ██ ██      ██   ██ |",
             @"|  ██████  ██   ██ ██      ██ ███████     ██████   ██████  ███████ ██   ██ |",
             @"| ======================================================================== |",
-    };
+        };
     }
 
     /// <summary>
@@ -500,28 +502,27 @@ namespace TextRPG
                 else { option = Math.Clamp(opt, 1, Enum.GetValues(typeof(Job)).Length); break; }
             }
 
-
             switch ((Job)(option - 1))
             {
                 case Job.Warrior:
                     Console.WriteLine("| You selected Warrior! |");
                     Console.Write("Type the name of your warrior : ");
                     SelectedCharacter = new Warrior(new CharacterStat(Console.ReadLine(), 150, 1, new AttackStat(30f, 6f, 1f), new DefendStat(25, 15, 5)), 100, 0);
-                    SelectedCharacter.OnDeath += GameOver;
                     break;
                 case Job.Wizard:
                     Console.WriteLine("| You selected Wizard! |");
                     Console.Write("Type the name of your wizard : ");
                     SelectedCharacter = new Wizard(new CharacterStat(Console.ReadLine(), 100, 1, new AttackStat(1f, 6f, 30f), new DefendStat(5, 10, 30)), 100, 0);
-                    SelectedCharacter.OnDeath += GameOver;
                     break;
                 case Job.Archer:
                     Console.WriteLine("| You selected Archer! |");
                     Console.Write("Type the name of your archer : ");
                     SelectedCharacter = new Archer(new CharacterStat(Console.ReadLine(), 120, 1, new AttackStat(6f, 30f, 1f), new DefendStat(15, 25, 5)), 100, 0);
-                    SelectedCharacter.OnDeath += GameOver;
                     break;
             }
+
+            SelectedCharacter.OnDeath += GameOver;
+            GiveBasicItems(SelectedCharacter);
         }
 
         /// <summary>
@@ -551,14 +552,69 @@ namespace TextRPG
             Quota = 10 + (GroundLevel - 1) * 5;
         }
 
+        public void SaveGame()
+        {
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(), new CharacterConverter() },
+                WriteIndented = true
+            };
+
+            string json = JsonSerializer.Serialize(SelectedCharacter, options);
+            File.WriteAllText("data.json", json, Encoding.UTF8);
+        }
+
+        public void LoadGame()
+        {
+            var options = new JsonSerializerOptions
+            {
+                Converters = { new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(), new CharacterConverter() },
+                WriteIndented = true
+            };
+
+            string json = File.ReadAllText("data.json", Encoding.UTF8);
+            var obj = JsonSerializer.Deserialize<Warrior>(json, options);
+            Console.WriteLine(obj?.ToString());
+        }
+
+        private void GiveBasicItems(Character character)
+        {
+            // LINQ
+            var basicHelmets = from armor in ItemLists.Armors
+                               where armor.GetType().Equals(typeof(Helmet)) && armor.Rarity == Rarity.Common
+                               select armor;
+            var basicChestArmors = from armor in ItemLists.Armors
+                                   where armor.GetType().Equals(typeof(ChestArmor)) && armor.Rarity == Rarity.Common
+                                   select armor;
+            var basicSwords = from sword in ItemLists.Weapons
+                              where sword.GetType().Equals(typeof(Sword)) && sword.Rarity == Rarity.Common
+                              select sword;
+            var basicHealthPotions = from item in ItemLists.Consumables
+                                     where item.GetType().Equals(typeof(HealthPotion)) && item.Rarity == Rarity.Common
+                                     select item;
+
+            if (basicHelmets.Count() > 0) { character.Armors.Add(new Helmet((Helmet)basicHelmets.First())); }
+            if (basicChestArmors.Count() > 0) { character.Armors.Add(new ChestArmor((ChestArmor)basicChestArmors.First())); }
+            if (basicSwords.Count() > 0) { character.Weapons.Add(new Sword((Sword)basicSwords.First())); }
+            if (basicHealthPotions.Count() > 0) { character.Consumables.Add(new HealthPotion((HealthPotion)basicHealthPotions.First())); }
+        }
+
         private void GameOver()
         {
             UIManager.GameOverUI();
             GameState = GameState.GameOver;
 
-            SelectedCharacter.OnRevive();
+            if (!SelectedCharacter.OnRevive()) { ResetGame(); return; }
             GameState = GameState.Town;
             GameTime = GameTime.Afternoon;
+        }
+
+        private void ResetGame()
+        {
+            GameState = GameState.MainMenu;
+            GameTime = GameTime.Afternoon;
+            GroundLevel = 1;
+            Quota = 10;
         }
     }
 }

@@ -31,7 +31,7 @@ namespace TextRPG
 
         public Monster(CharacterStat characterStat, int exp)
         {
-            this.characterStat = characterStat;
+            this.characterStat = new(characterStat);
             IsAlive = true;
             Exp = exp;
         }

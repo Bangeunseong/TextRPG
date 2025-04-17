@@ -1,11 +1,12 @@
-﻿using System.Text;
+using System.Text;
+using System.Text.Json.Serialization;
 
 namespace TextRPG
 {
     /// <summary>
     /// Stat. of Attack
     /// </summary>
-    public struct AttackStat
+    public class AttackStat
     {
         // Field
         private float attack;
@@ -13,11 +14,23 @@ namespace TextRPG
         private float magicAttack;
 
         // Property
-        public float Attack { readonly get { return attack; } set { if (value <= 0) attack = 0; else attack = value; } }
-        public float RangeAttack { readonly get { return rangeAttack; } set { if (value <= 0) rangeAttack = 0; else rangeAttack = value; } }
-        public float MagicAttack { readonly get { return magicAttack; } set { if (value <= 0) magicAttack = 0; else magicAttack = value; } }
+        public float Attack { get { return attack; } set { attack = Math.Max(0, value); } }
+        public float RangeAttack { get { return rangeAttack; } set { rangeAttack = Math.Max(0, value); } }
+        public float MagicAttack { get { return magicAttack; } set { magicAttack = Math.Max(0, value); } }
         
-        public AttackStat(float attack, float rangeAttack, float magicAttack) { Attack = attack; RangeAttack = rangeAttack; MagicAttack = magicAttack; }
+        public AttackStat() { Attack = 0; RangeAttack = 0; MagicAttack = 0; }
+        public AttackStat(float attack, float rangeAttack, float magicAttack)
+        {
+            Attack = attack; 
+            RangeAttack = rangeAttack; 
+            MagicAttack = magicAttack;
+        }
+        public AttackStat(AttackStat attackStat)
+        {
+            Attack = attackStat.Attack;
+            RangeAttack = attackStat.RangeAttack;
+            MagicAttack = attackStat.MagicAttack;
+        }
 
         public static AttackStat operator +(AttackStat stat1, AttackStat stat2)
         {
@@ -28,12 +41,19 @@ namespace TextRPG
         {
             return new AttackStat(stat1.Attack - stat2.Attack, stat1.RangeAttack - stat2.RangeAttack, stat1.MagicAttack - stat2.MagicAttack);
         }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new();
+            sb.Append($"Attack : {Attack}, ").Append($"Range Attack : {RangeAttack}, ").Append($"Magic Attack : {MagicAttack}");
+            return sb.ToString();
+        }
     }
 
     /// <summary>
     /// Stat. of Defend
     /// </summary>
-    public struct DefendStat
+    public class DefendStat
     {
         // Field
         private float defend;
@@ -41,11 +61,18 @@ namespace TextRPG
         private float magicDefend;
 
         // Property
-        public float Defend { readonly get { return defend; } set { if (value <= 0) defend = 0; else defend = value; } }
-        public float RangeDefend { readonly get { return rangeDefend; } set { if (value <= 0) rangeDefend = 0; else rangeDefend = value; } }
-        public float MagicDefend { readonly get { return magicDefend; } set { if (value <= 0) magicDefend = 0; else magicDefend = value; } }
+        public float Defend { get { return defend; } set { defend = Math.Max(0, value); } }
+        public float RangeDefend { get { return rangeDefend; } set { rangeDefend = Math.Max(0, value); } }
+        public float MagicDefend { get { return magicDefend; } set { magicDefend = Math.Max(0, value); } }
         
+        public DefendStat() { Defend = 0; RangeDefend = 0; MagicDefend = 0; }
         public DefendStat(float defend, float rangeDefend, float magicDefend) { Defend = defend; RangeDefend = rangeDefend; MagicDefend = magicDefend; }
+        public DefendStat(DefendStat defendStat)
+        {
+            Defend = defendStat.Defend;
+            RangeDefend = defendStat.RangeDefend;
+            MagicDefend = defendStat.MagicDefend;
+        }
 
         public static DefendStat operator +(DefendStat stat1, DefendStat stat2)
         {
@@ -55,6 +82,13 @@ namespace TextRPG
         public static DefendStat operator -(DefendStat stat1, DefendStat stat2)
         {
             return new DefendStat(stat1.Defend - stat2.Defend, stat1.RangeDefend - stat2.RangeDefend, stat1.MagicDefend - stat2.MagicDefend);
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new();
+            sb.Append($"Defend : {Defend}, ").Append($"Range Defend : {RangeDefend}, ").Append($"Magic Defend : {MagicDefend}");
+            return sb.ToString();
         }
     }
 
@@ -72,32 +106,34 @@ namespace TextRPG
         private int price;
 
         // Property
-        public string Name { get { return name; } protected set { name = value; } }
-        public DefendStat DefendStat { get { return defendStat; } protected set { defendStat = value; } }
-        public Rarity Rarity { get { return rarity; } protected set { rarity = value; } }
-        public ArmorPosition ArmorPosition { get; protected set; }
+        [JsonInclude] public string Name { get { return name; } protected set { name = value; } }
+        [JsonInclude] public DefendStat DefendStat { get { return defendStat; } protected set { defendStat = value; } }
+        [JsonInclude] public Rarity Rarity { get { return rarity; } protected set { rarity = value; } }
+        [JsonInclude] public ArmorPosition ArmorPosition { get; protected set; }
+        [JsonInclude] public ItemCategory Category { get; protected set; } = ItemCategory.Armor;
+        [JsonInclude] public int Price { get { return price; } protected set { price = value; } }
         public bool IsEquipped { get { return isEquipped; } set { isEquipped = value; } }
-        public int Price { get { return price; } protected set { price = value; } }
-        public ItemCategory Category { get; private set; } = ItemCategory.Armor;
 
         // Constructor
-        public Armor(string name = "Unknown", DefendStat defendStat = new DefendStat(), int price = 0, Rarity rarity = Rarity.Common)
+        public Armor() { Name = "Unknown"; DefendStat = new(1, 1, 1); Price = 0; Rarity = Rarity.Common; }
+        public Armor(string name = "Unknown", DefendStat? defendStat = null, int price = 0, Rarity rarity = Rarity.Common)
         {
             Name = name;
             Price = price;
             Rarity = rarity;
-
-            if ((int)rarity > (int)Rarity.Common)
+            if (defendStat != null)
             {
-                DefendStat newStat = new()
+                if ((int)rarity > (int)Rarity.Common)
                 {
-                    Defend = defendStat.Defend + defendStat.Defend * ((int)rarity - (int)Rarity.Common) * 0.3f,
-                    RangeDefend = defendStat.RangeDefend + defendStat.RangeDefend * ((int)rarity - (int)Rarity.Common) * 0.3f,
-                    MagicDefend = defendStat.MagicDefend + defendStat.MagicDefend * ((int)rarity - (int)Rarity.Common) * 0.3f
-                };
-                DefendStat = newStat;
+                    DefendStat newStat = new(
+                        defendStat.Defend + defendStat.Defend * ((int)rarity - (int)Rarity.Common) * 0.3f,
+                        defendStat.RangeDefend + defendStat.RangeDefend * ((int)rarity - (int)Rarity.Common) * 0.3f,
+                        defendStat.MagicDefend + defendStat.MagicDefend * ((int)rarity - (int)Rarity.Common) * 0.3f);
+                    DefendStat = newStat;
+                }
+                else DefendStat = defendStat;
             }
-            else DefendStat = defendStat;
+            else DefendStat = new(1, 1, 1);
         }
 
         // Methods
@@ -164,12 +200,14 @@ namespace TextRPG
     class Helmet : Armor
     {
         // Constructor
+        public Helmet() : base() { ArmorPosition = ArmorPosition.Head; }
         public Helmet(string name, DefendStat defendStat, int price, Rarity rarity) : base(name, defendStat, price, rarity) {
             ArmorPosition = ArmorPosition.Head;
         }
         public Helmet(Helmet helmet) : base(helmet.Name, helmet.DefendStat, helmet.Price, helmet.Rarity) { 
             ArmorPosition = helmet.ArmorPosition; 
         }
+        
 
         public override void OnPurchased(Character character)
         {
@@ -189,6 +227,7 @@ namespace TextRPG
     class ChestArmor : Armor
     {
         // Constructor
+        public ChestArmor() : base() { ArmorPosition = ArmorPosition.Torso; }
         public ChestArmor(string name, DefendStat defendStat, int price, Rarity rarity) : base(name, defendStat, price, rarity) {
             ArmorPosition = ArmorPosition.Torso;
         }
@@ -214,6 +253,7 @@ namespace TextRPG
     class LegArmor : Armor
     {
         // Constructor
+        public LegArmor() : base() { ArmorPosition = ArmorPosition.Leg; }
         public LegArmor(string name, DefendStat defendStat, int price, Rarity rarity) : base(name, defendStat, price, rarity) {
             ArmorPosition = ArmorPosition.Leg;
         }
@@ -239,6 +279,7 @@ namespace TextRPG
     class FootArmor : Armor
     {
         // Constructor
+        public FootArmor() : base() { ArmorPosition = ArmorPosition.Foot; }
         public FootArmor(string name, DefendStat defendStat, int price, Rarity rarity) : base(name, defendStat, price, rarity) {
             ArmorPosition = ArmorPosition.Foot;
         }
@@ -264,6 +305,7 @@ namespace TextRPG
     class Guntlet : Armor
     {
         // Constructor
+        public Guntlet() : base() { ArmorPosition = ArmorPosition.Arm; }
         public Guntlet(string name, DefendStat defendStat, int price, Rarity rarity) : base(name, defendStat, price, rarity) {
             ArmorPosition = ArmorPosition.Arm;
         }
@@ -299,31 +341,35 @@ namespace TextRPG
         private int price;
 
         // Property
-        public string Name { get { return name; } protected set { name = value; } }
-        public AttackStat AttackStat { get { return attackStat; } protected set { attackStat = value; } }
-        public Rarity Rarity { get { return rarity; } protected set { rarity = value; } }
+        [JsonInclude] public string Name { get { return name; } protected set { name = value; } }
+        [JsonInclude] public AttackStat AttackStat { get { return attackStat; } protected set { attackStat = value; } }
+        [JsonInclude] public Rarity Rarity { get { return rarity; } protected set { rarity = value; } }
+        [JsonInclude] public ItemCategory Category { get; protected set; } = ItemCategory.Weapon;
+        [JsonInclude] public AttackType AttackType { get; protected set; }
+        [JsonInclude] public int Price { get { return price; } protected set { price = value; } }
         public bool IsEquipped { get { return isEquipped; } set { isEquipped = value; } }
-        public int Price { get { return price; } protected set { price = value; } }
-        public ItemCategory Category { get; private set; } = ItemCategory.Weapon;
-        public AttackType AttackType { get; protected set; }
 
-        public Weapon(string name = "Unknown", AttackStat attackStat = new AttackStat(), int price = 0,  Rarity rarity = Rarity.Common)
+        public Weapon() { Name = "Unknown"; AttackStat = new(); Price = 0; Rarity = Rarity.Common; }
+        public Weapon(string name, AttackStat attackStat, int price, Rarity rarity)
         {
             Name = name;
             Price = price;
             Rarity = rarity;
-
-            if ((int)rarity > (int)Rarity.Common)
+            if (attackStat != null)
             {
-                AttackStat newStat = new()
+                if ((int)rarity > (int)Rarity.Common)
                 {
-                    Attack = attackStat.Attack + attackStat.Attack * ((int)rarity - (int)Rarity.Common) * 0.3f,
-                    RangeAttack = attackStat.RangeAttack + attackStat.RangeAttack * ((int)rarity - (int)Rarity.Common) * 0.3f,
-                    MagicAttack = attackStat.MagicAttack + attackStat.MagicAttack * ((int)rarity - (int)Rarity.Common) * 0.3f
-                };
-                AttackStat = newStat;
+                    AttackStat newStat = new()
+                    {
+                        Attack = attackStat.Attack + attackStat.Attack * ((int)rarity - (int)Rarity.Common) * 0.3f,
+                        RangeAttack = attackStat.RangeAttack + attackStat.RangeAttack * ((int)rarity - (int)Rarity.Common) * 0.3f,
+                        MagicAttack = attackStat.MagicAttack + attackStat.MagicAttack * ((int)rarity - (int)Rarity.Common) * 0.3f
+                    };
+                    AttackStat = newStat;
+                }
+                else AttackStat = attackStat;
             }
-            else AttackStat = attackStat;
+            else AttackStat = new(1, 1, 1);
         }
 
         public void OnEquipped(Character character)
@@ -387,6 +433,7 @@ namespace TextRPG
     /// </summary>
     class Sword : Weapon
     {
+        public Sword() : base() { AttackType = AttackType.Close; }
         public Sword(string name, AttackStat attackStat, int price, Rarity rarity) : base(name, attackStat, price, rarity) {
             AttackType = AttackType.Close;
         }
@@ -411,6 +458,7 @@ namespace TextRPG
     /// </summary>
     class Bow : Weapon
     {
+        public Bow() : base() { AttackType = AttackType.Long; }
         public Bow(string name, AttackStat attackStat, int price, Rarity rarity) : base(name, attackStat, price, rarity ) {
             AttackType = AttackType.Long;
         }
@@ -435,6 +483,7 @@ namespace TextRPG
     /// </summary>
     class Staff : Weapon
     {
+        public Staff() : base() { AttackType= AttackType.Magic; }
         public Staff(string name, AttackStat attackStat, int price, Rarity rarity) : base(name, attackStat, price, rarity) {
             AttackType = AttackType.Magic;
         }
@@ -462,24 +511,29 @@ namespace TextRPG
     /// </summary>
     abstract class Consumables : IUseable, IPurchasable, ISellable, IPickable
     {
+        // Field
         private string _name;
         private float _coefficient;
         private int _price;
         private Rarity _rarity;
         private ConsumableCategory _consumableCategory;
 
-        public string Name { get { return _name; } protected set { _name = value; } }
-        public float Coefficient { get { return _coefficient; } protected set { _coefficient = value; } }
-        public int Price { get { return _price; } protected set { _price = value; } }
-        public ItemCategory Category { get; private set; } = ItemCategory.Consumable;
-        public Rarity Rarity { get { return _rarity; } protected set { _rarity = value; } }
+        // Property
+        [JsonInclude] public string Name { get { return _name; } protected set { _name = value; } }
+        [JsonInclude] public float Coefficient { get { return _coefficient; } protected set { _coefficient = value; } }
+        [JsonInclude] public int Price { get { return _price; } protected set { _price = value; } }
+        [JsonInclude] public ItemCategory Category { get; protected set; } = ItemCategory.Consumable;
+        [JsonInclude] public Rarity Rarity { get { return _rarity; } protected set { _rarity = value; } }
         public ConsumableCategory ConsumableCategory { get { return _consumableCategory; } protected set { _consumableCategory = value; } }
         
-        public Consumables(string name, float coefficient, int price, ConsumableCategory consumableCategory, Rarity rarity = Rarity.Common)
+        // Constructor
+        public Consumables() { Name = "Unknown"; Coefficient = 0; Price = 0; ConsumableCategory = ConsumableCategory.IncreaseHealth; Rarity = Rarity.Common; }
+        public Consumables(string name, float coefficient, int price, ConsumableCategory consumableCategory, Rarity rarity)
         {
             Name = name; Coefficient = coefficient; Price = price; ConsumableCategory = consumableCategory; Rarity = rarity;
         }
 
+        // Methods
         public virtual void OnUsed(Character character)
         {
             character.Consumables.Remove(this);
@@ -522,6 +576,7 @@ namespace TextRPG
     class HealthPotion : Consumables
     {
         // Constructor
+        public HealthPotion() : base() { }
         public HealthPotion(string name, float coefficient, int price, Rarity rarity = Rarity.Common) : base(name, coefficient, price, ConsumableCategory.IncreaseHealth, rarity) { }
         public HealthPotion(HealthPotion potion) : base(potion.Name, potion.Coefficient, potion.Price, potion.ConsumableCategory, potion.Rarity) { }
 
@@ -561,9 +616,10 @@ namespace TextRPG
     {
         private AttackStat attackStat;
 
-        public AttackStat AttackStat { get { return attackStat; } private set { attackStat = value; } }
+        public AttackStat AttackStat { get { return attackStat; } protected set { attackStat = value; } }
 
         // Constructor
+        public AttackBuffPotion() : base() { }
         public AttackBuffPotion(string name, float coefficient, int price, Rarity rarity = Rarity.Common) 
             : base(name, coefficient, price, ConsumableCategory.IncreaseAttack, rarity)
         {
@@ -622,9 +678,10 @@ namespace TextRPG
         private DefendStat defendStat;
 
         // Property
-        public DefendStat DefendStat { get { return defendStat; } private set { defendStat = value; } }
+        public DefendStat DefendStat { get { return defendStat; } protected set { defendStat = value; } }
 
         // Constructor
+        public DefendBuffPotion() : base() { }
         public DefendBuffPotion(string name, float coefficient, int price, Rarity rarity = Rarity.Common)
             : base(name, coefficient, price, ConsumableCategory.IncreaseDefence, rarity)
         {
@@ -683,10 +740,11 @@ namespace TextRPG
         private AttackStat attackStat;
         private DefendStat defendStat;
 
-        public AttackStat AttackStat { get { return attackStat; } private set { attackStat = value; } }
-        public DefendStat DefendStat { get { return defendStat; } private set { defendStat = value; } }
+        public AttackStat AttackStat { get { return attackStat; } protected set { attackStat = value; } }
+        public DefendStat DefendStat { get { return defendStat; } protected set { defendStat = value; } }
 
         // Constructor
+        public AllBuffPotion() : base() { }
         public AllBuffPotion(string name, float coefficient, int price, Rarity rarity = Rarity.Common) 
             : base(name, coefficient, price, ConsumableCategory.IncreaseAllStat, rarity)
         {
