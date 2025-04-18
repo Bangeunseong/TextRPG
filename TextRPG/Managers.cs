@@ -132,8 +132,8 @@ namespace TextRPG
             Console.WriteLine("\n| ----- \"Character Info.\" ----- |");
             Console.WriteLine($"\n| \"Name\" : {character.Name} |");
             Console.WriteLine($"| \"Lv {character.Level:D2}\" |");
-            Console.WriteLine($"| \"Experience\" : {character.Exp} |");
-            Console.WriteLine($"| \"Health\" : {character.Health} |");
+            Console.WriteLine($"| \"Experience\" : {character.Exp:F2} |");
+            Console.WriteLine($"| \"Health\" : {character.Health:F2} |");
             Console.WriteLine($"| \"Currency\" : {character.Currency} |");
 
             Console.WriteLine("\n| ----- \"Status\" ----- |");

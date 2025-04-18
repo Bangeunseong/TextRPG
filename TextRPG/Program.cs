@@ -427,16 +427,20 @@ namespace TextRPG
         private void InBattle_Attack()
         {
             UIManager.ShowMonsterList(SpawnManager);
-            if (!int.TryParse(Console.ReadLine(), out int ind)) { Console.WriteLine("| Invalid Input! |"); return; }
-            if (ind > 0 && ind <= SpawnManager.GetMonsterCount())
+            int opt;
+            while(true) { 
+                if (!int.TryParse(Console.ReadLine(), out int ind)) Console.WriteLine("| Invalid Input! |"); 
+                else { opt = ind; break; } 
+            }
+            if (opt > 0 && opt <= SpawnManager.GetMonsterCount())
             {
                 AttackType? type = GameManager.SelectedCharacter.EquippedWeapon?.AttackType;
                 switch (type)
                 {
-                    case AttackType.Close: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
-                    case AttackType.Long: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.RangeAttack); break;
-                    case AttackType.Magic: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.MagicAttack); break;
-                    default: SpawnManager.spawnedMonsters[ind - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
+                    case AttackType.Close: SpawnManager.spawnedMonsters[opt - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
+                    case AttackType.Long: SpawnManager.spawnedMonsters[opt - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.RangeAttack); break;
+                    case AttackType.Magic: SpawnManager.spawnedMonsters[opt - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.MagicAttack); break;
+                    default: SpawnManager.spawnedMonsters[opt - 1].OnDamage(AttackType.Close, GameManager.SelectedCharacter.AttackStat.Attack); break;
                 }
             }
             else { Console.WriteLine("| Invalid Input! |"); return; }

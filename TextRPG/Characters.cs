@@ -134,7 +134,7 @@ namespace TextRPG
             Console.WriteLine($"| {Name} got {calculatedDamage:F2} damage! |");
             Health -= calculatedDamage;
 
-            if (Health <= 0 && IsAlive) Die();
+            if (Health <= 0.9f && IsAlive) Die();
         }
 
         public bool OnRevive()
