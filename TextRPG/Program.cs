@@ -191,7 +191,6 @@ namespace TextRPG
             UIManager.StatusUI(GameManager.SelectedCharacter);
         }
 
-        // Optional : Save and Load
         /// <summary>
         /// Gives interface that player can save, load, or end game.
         /// </summary>

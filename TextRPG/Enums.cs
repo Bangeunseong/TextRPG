@@ -69,6 +69,7 @@ namespace TextRPG
         Continue,
         Exit,
     }
+
     public enum GameState
     {
         MainMenu,

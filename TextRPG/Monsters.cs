@@ -5,6 +5,7 @@ namespace TextRPG
     /// </summary>
     abstract class Monster : IDamagable
     {
+        // Field
         private CharacterStat characterStat;
         private bool isAlive;
         private int exp;
@@ -23,6 +24,7 @@ namespace TextRPG
 
         public event Action OnDeath;
 
+        // Constructor
         public Monster(CharacterStat characterStat, int exp)
         {
             this.characterStat = new(characterStat);
@@ -30,6 +32,7 @@ namespace TextRPG
             this.exp = exp;
         }
 
+        // Methods
         public CharacterStat GetStat() { return characterStat; }
 
         public void OnDamage(AttackType type, float damage)

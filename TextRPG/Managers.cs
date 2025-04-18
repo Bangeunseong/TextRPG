@@ -451,8 +451,78 @@ namespace TextRPG
             KilledMonsterCount++;
             character.Currency += currency;
             character.OnEarnExp(monster.Exp);
-            GetRandomConsumable(monster.Level)?.OnPicked(character);
+
+            // Randomly drop items
+            int ind = new Random().Next(0, 3);
+            if (ind == 0) GetRandomArmor(monster.Level)?.OnPicked(character);
+            else if (ind == 1) GetRandomWeapon(monster.Level)?.OnPicked(character);
+            else GetRandomConsumable(monster.Level)?.OnPicked(character);
+
             spawnedMonsters.Remove(monster);
+        }
+
+        private Armor? GetRandomArmor(int level)
+        {
+            if (new Random().Next(1, 101) % 2 != 0) return null;
+
+            IEnumerable<Armor> filteredItems;
+            if (level > 0 && level <= 15)
+            {
+                filteredItems = from item in ItemLists.Armors
+                                where item.Rarity == Rarity.Common || item.Rarity == Rarity.Exclusive
+                                select item;
+            }
+            else if (level > 15 && level <= 30)
+            {
+                filteredItems = from item in ItemLists.Armors
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare
+                                select item;
+            }
+            else if (level > 30 && level <= 50)
+            {
+                filteredItems = from item in ItemLists.Armors
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero
+                                select item;
+            }
+            else
+            {
+                filteredItems = from item in ItemLists.Armors
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero || item.Rarity == Rarity.Legend
+                                select item;
+            }
+            int ind = new Random().Next(filteredItems.Count());
+            return filteredItems.ElementAt(ind);
+        }
+        private Weapon? GetRandomWeapon(int level)
+        {
+            if (new Random().Next(1, 101) % 2 != 0) return null;
+            IEnumerable<Weapon> filteredItems;
+            if (level > 0 && level <= 15)
+            {
+                filteredItems = from item in ItemLists.Weapons
+                                where item.Rarity == Rarity.Common || item.Rarity == Rarity.Exclusive
+                                select item;
+            }
+            else if (level > 15 && level <= 30)
+            {
+                filteredItems = from item in ItemLists.Weapons
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare
+                                select item;
+            }
+            else if (level > 30 && level <= 50)
+            {
+                filteredItems = from item in ItemLists.Weapons
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero
+                                select item;
+            }
+            else
+            {
+                filteredItems = from item in ItemLists.Weapons
+                                where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero || item.Rarity == Rarity.Legend
+                                select item;
+            }
+            int ind = new Random().Next(filteredItems.Count());
+            return filteredItems.ElementAt(ind);
         }
         private Consumables? GetRandomConsumable(int level)
         {
@@ -464,12 +534,14 @@ namespace TextRPG
                 filteredItems = from item in ItemLists.Consumables
                                 where item.Rarity == Rarity.Common || item.Rarity == Rarity.Exclusive
                                 select item;
-            } else if(level > 15 && level <= 30)
+            }
+            else if(level > 15 && level <= 30)
             {
                 filteredItems = from item in ItemLists.Consumables
                                 where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare
                                 select item;
-            } else if(level > 30 && level <= 50)
+            }
+            else if(level > 30 && level <= 50)
             {
                 filteredItems = from item in ItemLists.Consumables
                                 where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero
