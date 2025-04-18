@@ -117,9 +117,10 @@ namespace TextRPG
             Console.WriteLine("\n| ----- Welcome to Alby's Cabin! ----- |");
             foreach(string line in Miscs.Alby) Console.WriteLine(line);
             Console.WriteLine("\n| Room Options |");
-            Console.WriteLine("| 1. Normal Room (Heals 50% of your Max Health, 20G) |");
-            Console.WriteLine("| 2. Comfy Room (Heals 75% of your Max Health, 40G) |");
-            Console.WriteLine("| 3. Emperror Room (Heals 100% of your Max Health, 60G)");
+            Console.WriteLine("| 1. Back |");
+            Console.WriteLine("| 2. Normal Room (Heals 50% of your Max Health, 20G) |");
+            Console.WriteLine("| 3. Comfy Room (Heals 75% of your Max Health, 40G) |");
+            Console.WriteLine("| 4. Emperror Room (Heals 100% of your Max Health, 60G)");
             Console.WriteLine("| ------------------------------------ |");
             Console.Write("\nChoose Room Option : ");
         }

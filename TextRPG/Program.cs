@@ -51,18 +51,19 @@ namespace TextRPG
                 UIManager.CabinUI();
 
                 if(!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); continue; }
-                option = Math.Clamp(opt, 1, 3);
+                option = Math.Clamp(opt, 1, 4);
                 switch (option)
                 {
-                    case 1:
+                    case 1: Console.WriteLine("| Have a great day! |"); return;
+                    case 2:
                         if (GameManager.SelectedCharacter.Currency < 20) { Console.WriteLine("| Not enough Money! |"); }
                         else { isSelected = true; }
                         break;
-                    case 2:
+                    case 3:
                         if (GameManager.SelectedCharacter.Currency < 40) { Console.WriteLine("| Not enough Money! |"); }
                         else { isSelected = true; }
                         break;
-                    case 3:
+                    case 4:
                         if (GameManager.SelectedCharacter.Currency < 60) { Console.WriteLine("| Not enough Money! |"); }
                         else { isSelected = true; }
                         break;
