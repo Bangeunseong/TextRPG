@@ -430,7 +430,7 @@ namespace TextRPG
             int opt;
             while(true) { 
                 if (!int.TryParse(Console.ReadLine(), out int ind)) Console.WriteLine("| Invalid Input! |"); 
-                else { opt = ind; break; } 
+                else { opt = Math.Clamp(ind, 1, SpawnManager.GetMonsterCount()); break; } 
             }
             if (opt > 0 && opt <= SpawnManager.GetMonsterCount())
             {
