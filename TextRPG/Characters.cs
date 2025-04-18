@@ -19,20 +19,12 @@ namespace TextRPG
         // Property
         public string Name { get { return name; } set { name = value; } }
         public int Level { get { return level; } set { level = Math.Min(100, value); } }
-        public AttackStat AttackStat { get { return attackStat; } set { attackStat = value; } }
-        public DefendStat DefendStat { get { return defendStat; } set { defendStat = value; } }
         public float MaxHealth { get { return maxHealth; } set { maxHealth = value; } }
         public float Health { get { return health; } set { health = value; } }
-        
-        public CharacterStat()
-        {
-            Name = "Anon";
-            MaxHealth = 0;
-            Health = 0;
-            Level = 1;
-            AttackStat = new(1, 1, 1);
-            DefendStat = new(1, 1, 1);
-        }
+        public AttackStat AttackStat { get { return attackStat; } set { attackStat = value; } }
+        public DefendStat DefendStat { get { return defendStat; } set { defendStat = value; } }
+
+        // Constructor
         public CharacterStat(string name, float maxHealth, int level, AttackStat attackStat, DefendStat defendStat)
         {
             Name = name;
@@ -42,14 +34,26 @@ namespace TextRPG
             AttackStat = attackStat;
             DefendStat = defendStat;
         }
+
         public CharacterStat(CharacterStat characterStat)
         {
-            name = characterStat.name;
-            maxHealth = characterStat.maxHealth;
-            health = characterStat.health; 
-            level = characterStat.level;
-            attackStat = new(characterStat.attackStat);
-            defendStat = new(characterStat.defendStat);
+            Name = characterStat.Name ?? "Unknown";
+            MaxHealth = characterStat.MaxHealth;
+            Health = characterStat.Health;
+            Level = characterStat.Level;
+            AttackStat = new(characterStat.AttackStat);
+            DefendStat = new(characterStat.DefendStat);
+        }
+
+        [JsonConstructor]
+        public CharacterStat(string name, float maxHealth, float health, int level, AttackStat attackStat, DefendStat defendStat)
+        {
+            Name = name ?? "Unknown";
+            MaxHealth = maxHealth;
+            Health = health;
+            Level = level;
+            AttackStat = attackStat;
+            DefendStat = defendStat;
         }
     }
 
@@ -60,46 +64,50 @@ namespace TextRPG
     {
         // Field
         private CharacterStat characterStat;
-        private List<Armor> armors = new List<Armor>();
-        private List<Weapon> weapons = new List<Weapon>();
-        private List<Consumables> consumables = new List<Consumables>();
-        private Armor?[] equippedArmor = new Armor[Enum.GetValues((typeof(ArmorPosition))).Length];
-        private Weapon? equippedWeapon = null;
         private int currency;
         private int exp;
 
         // Property
-        [JsonInclude] public CharacterStat CharacterStat { get { return characterStat; } protected set { characterStat = value; } }
-        
-        [JsonIgnore] public float MaxHealth { get { return characterStat.MaxHealth; } protected set { characterStat.MaxHealth = value; } }
-        [JsonIgnore] public float Health { get { return characterStat.Health; } protected set { characterStat.Health = Math.Clamp(value, 0, MaxHealth); } }
-        [JsonIgnore] public string Name { get { return characterStat.Name; } protected set { characterStat.Name = value; } }
-        [JsonIgnore] public int Level { get { return characterStat.Level; } protected set { characterStat.Level = value; } }
-        [JsonIgnore] public AttackStat AttackStat { get { return characterStat.AttackStat; } set { characterStat.AttackStat = value; } }
-        [JsonIgnore] public DefendStat DefendStat { get { return characterStat.DefendStat; } set { characterStat.DefendStat = value; } }
+        [JsonIgnore] public CharacterStat CharacterStat { get { return characterStat; } protected set { characterStat = value; } }
 
-        [JsonInclude] public int Currency { get { return currency; } set { currency = Math.Max(0, value); } }
+        [JsonInclude] public string Name { get { return characterStat.Name; } protected set { characterStat.Name = value; } }
+        [JsonInclude] public float MaxHealth { get { return characterStat.MaxHealth; } protected set { characterStat.MaxHealth = value; } }
+        [JsonInclude] public float Health { get { return characterStat.Health; } protected set { characterStat.Health = Math.Clamp(value, 0, MaxHealth); } }
+        [JsonInclude] public int Level { get { return characterStat.Level; } protected set { characterStat.Level = value; } }
+        [JsonInclude] public AttackStat AttackStat { get { return characterStat.AttackStat; } set { characterStat.AttackStat = value; } }
+        [JsonInclude] public DefendStat DefendStat { get { return characterStat.DefendStat; } set { characterStat.DefendStat = value; } }
+
+        public int Currency { get { return currency; } set { currency = Math.Max(0, value); } }
         [JsonInclude] public int Exp { get { return exp; } protected set { exp = Math.Clamp(value, 0, 9999); } }
         [JsonInclude] public bool IsAlive { get; protected set; } = true;
 
-        [JsonInclude] public List<Armor> Armors { get { return armors; } set { armors = value; } }
-        [JsonInclude] public List<Weapon> Weapons { get { return weapons; } set { weapons = value; } }
-        [JsonInclude] public List<Consumables> Consumables { get { return consumables; } set { consumables = value; } }
+        public List<Armor> Armors { get; set; } = new List<Armor>();
+        public List<Weapon> Weapons { get; set; } = new List<Weapon>();
+        public List<Consumables> Consumables { get; set; } = new List<Consumables>();
 
-        [JsonInclude] public Armor?[] EquippedArmor { get { return equippedArmor; } set { equippedArmor = value; } }
-        [JsonInclude] public Weapon? EquippedWeapon { get { return equippedWeapon; } set { equippedWeapon = value; } }
+        public Armor?[] EquippedArmor { get; set; } = new Armor[Enum.GetValues((typeof(ArmorPosition))).Length];
+        public Weapon? EquippedWeapon { get; set; } = null;
 
         public event Action? OnDeath;
 
         // Constructor
-        public Character() { CharacterStat = new(); Currency = 0; Exp = 0; }
         public Character(CharacterStat characterStat, int currency, int exp)
         {
-            this.characterStat = new(characterStat);
+            CharacterStat = new(characterStat);
             Currency = currency;
             Exp = exp;
         }
 
+        [JsonConstructor]
+        public Character(string name, float maxHealth, float health, int level, AttackStat attackStat, DefendStat defendStat, int currency, int exp, bool isAlive)
+        {
+            CharacterStat = new(name, maxHealth, health, level, attackStat, defendStat);
+            Currency = currency;
+            Exp = exp;
+            IsAlive = isAlive;
+        }
+        
+        // Methods
         public void OnEarnExp(int exp)
         {
             int curLvl = Level;
@@ -109,7 +117,6 @@ namespace TextRPG
             if(curLvl != Level) OnLevelUp();
         }
 
-        // Methods
         public void OnHeal(float coef)
         {
             if (!IsAlive) { return; }
@@ -188,17 +195,17 @@ namespace TextRPG
         private Job job;
 
         // Property
-        public Job Job { get { return job; } protected set { job = value; } }
+        [JsonIgnore] public Job Job { get { return job; } protected set { job = value; } }
 
         // Constructor
-        public Warrior() : base() { job = Job.Warrior; }
         public Warrior(CharacterStat characterStat, int currency, int exp) : base(characterStat, currency, exp) { job = Job.Warrior; }
         public Warrior(Warrior warrior) : base(warrior.CharacterStat, warrior.Currency, warrior.Exp) { job = Job.Warrior; }
-        public Warrior(CharacterStat characterStat, int currency, int exp, bool isAlive, List<Armor> armors, List<Weapon> weapons, List<Consumables> consumables, Armor?[] equippedArmor, Weapon? equippedWeapon)
-            :base(characterStat, currency, exp)
+
+        [JsonConstructor]
+        public Warrior(string name, float maxHealth, float health, int level, AttackStat attackStat, DefendStat defendStat, int currency, int exp, bool isAlive, List<Armor> armors, List<Weapon> weapons, List<Consumables> consumables, Armor?[] equippedArmor, Weapon? equippedWeapon)
+            : base(name, maxHealth, health, level, attackStat, defendStat, currency, exp, isAlive)
         {
             Job = Job.Warrior;
-            IsAlive = isAlive;
             Armors = armors ?? new List<Armor>();
             Weapons = weapons ?? new List<Weapon>();
             Consumables = consumables ?? new List<Consumables>();
@@ -224,11 +231,12 @@ namespace TextRPG
         public Job Job { get { return job; } protected set { job = value; } }
 
         // Constructor
-        public Wizard() : base() { job = Job.Wizard; }
         public Wizard(CharacterStat characterStat, int currency, int exp) : base(characterStat, currency, exp) { job = Job.Wizard; }
         public Wizard(Wizard wizard) : base(wizard.CharacterStat, wizard.Currency, wizard.Exp) { job = Job.Wizard; }
-        public Wizard(CharacterStat characterStat, int currency, int exp, bool isAlive, List<Armor> armors, List<Weapon> weapons, List<Consumables> consumables, Armor?[] equippedArmor, Weapon? equippedWeapon)
-            : base(characterStat, currency, exp)
+
+        [JsonConstructor]
+        public Wizard(string name, float maxHealth, float health, int level, AttackStat attackStat, DefendStat defendStat, int currency, int exp, bool isAlive, List<Armor> armors, List<Weapon> weapons, List<Consumables> consumables, Armor?[] equippedArmor, Weapon? equippedWeapon)
+            : base(name, maxHealth, health, level, attackStat, defendStat, currency, exp, isAlive)
         {
             Job = Job.Wizard;
             IsAlive = isAlive;
@@ -257,11 +265,12 @@ namespace TextRPG
         public Job Job { get { return job; } protected set { job = value; } }
 
         // Constructor
-        public Archer() : base() { job = Job.Archer; }
         public Archer(CharacterStat characterStat, int currency, int exp) : base(characterStat, currency, exp) { job = Job.Archer; }
         public Archer(Archer archer) : base(archer.CharacterStat, archer.Currency, archer.Exp) { job = Job.Archer; }
-        public Archer(CharacterStat characterStat, int currency, int exp, bool isAlive, List<Armor> armors, List<Weapon> weapons, List<Consumables> consumables, Armor?[] equippedArmor, Weapon? equippedWeapon)
-            : base(characterStat, currency, exp)
+
+        [JsonConstructor]
+        public Archer(string name, float maxHealth, float health, int level, AttackStat attackStat, DefendStat defendStat, int currency, int exp, bool isAlive, List<Armor> armors, List<Weapon> weapons, List<Consumables> consumables, Armor?[] equippedArmor, Weapon? equippedWeapon)
+            : base(name, maxHealth, health, level, attackStat, defendStat, currency, exp, isAlive)
         {
             Job = Job.Archer;
             IsAlive = isAlive;

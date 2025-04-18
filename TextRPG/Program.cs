@@ -30,7 +30,7 @@ namespace TextRPG
             switch ((GameOption)(option - 1))
             {
                 case GameOption.NewGame: GameManager.Switch_Job(); GameManager.GameState = GameState.Town; break;
-                case GameOption.Continue: Console.WriteLine("Not yet implemented!"); return false;
+                case GameOption.Continue: GameManager.LoadGame(); break;
                 case GameOption.Exit: return false;
             }
 

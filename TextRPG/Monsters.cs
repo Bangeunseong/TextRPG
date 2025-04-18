@@ -1,9 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace TextRPG
 {
     /// <summary>
@@ -32,8 +26,8 @@ namespace TextRPG
         public Monster(CharacterStat characterStat, int exp)
         {
             this.characterStat = new(characterStat);
-            IsAlive = true;
-            Exp = exp;
+            isAlive = true;
+            this.exp = exp;
         }
 
         public CharacterStat GetStat() { return characterStat; }

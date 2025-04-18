@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -18,7 +19,7 @@ namespace TextRPG
                 "Helmet" => JsonSerializer.Deserialize<Helmet>(data, options)!,
                 "ChestArmor" => JsonSerializer.Deserialize<ChestArmor>(data, options)!,
                 "LegArmor" => JsonSerializer.Deserialize<LegArmor>(data, options)!,
-                "Guntlet" => JsonSerializer.Deserialize<Guntlet>(data, options)!,
+                "Gauntlet" => JsonSerializer.Deserialize<Gauntlet>(data, options)!,
                 "FootArmor" => JsonSerializer.Deserialize<FootArmor>(data, options)!,
                 _ => throw new NotSupportedException($"Unknown armor type: {typeName}")
             };

@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 
 namespace TextRPG
 {
@@ -554,27 +552,87 @@ namespace TextRPG
 
         public void SaveGame()
         {
-            var options = new JsonSerializerOptions
+            var characterOptions = new JsonSerializerOptions
             {
-                Converters = { new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(), new CharacterConverter() },
+                Converters = { 
+                    new CharacterConverter(), new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(),
+                },
                 WriteIndented = true
             };
 
-            string json = JsonSerializer.Serialize(SelectedCharacter, options);
-            File.WriteAllText("data.json", json, Encoding.UTF8);
+            string characterJson = JsonSerializer.Serialize(SelectedCharacter, characterOptions);
+            File.WriteAllText("data.json", characterJson, new UTF8Encoding(true));
+
+            var gameData = new GameData {
+                GroundLevel = GroundLevel,
+                Quota = Quota,
+                GameState = GameState,
+                GameTime = GameTime,
+                Exposables = Exposables.ToList()
+            };
+
+            var gameOptions = new JsonSerializerOptions
+            {
+                Converters = {
+                    new ConsumableConverter()
+                },
+                WriteIndented = true
+            };
+            string gameJson = JsonSerializer.Serialize(gameData, gameOptions);
+            File.WriteAllText("game.json", gameJson, new UTF8Encoding(true));
+
+            Console.WriteLine("| Game Saved Successfully! |");
         }
 
         public void LoadGame()
         {
+            if(!File.Exists("data.json") || !File.Exists("game.json"))
+            {
+                Console.WriteLine("| No saved data found! |");
+                return;
+            }
+
             var options = new JsonSerializerOptions
             {
-                Converters = { new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(), new CharacterConverter() },
+                Converters = {
+                    new CharacterConverter(), new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(),
+                },
                 WriteIndented = true
             };
 
-            string json = File.ReadAllText("data.json", Encoding.UTF8);
-            var obj = JsonSerializer.Deserialize<Warrior>(json, options);
-            Console.WriteLine(obj?.ToString());
+            string characterJson = File.ReadAllText("data.json", Encoding.UTF8);
+            var obj = JsonSerializer.Deserialize<Character>(characterJson, options);
+            SelectedCharacter = obj ?? throw new InvalidOperationException("Failed to load character data.");
+
+            var gameOptions = new JsonSerializerOptions
+            {
+                Converters = {
+                    new ConsumableConverter()
+                },
+                WriteIndented = true
+            };
+
+            string gameJson = File.ReadAllText("game.json", Encoding.UTF8);
+            var gameObj = JsonSerializer.Deserialize<GameData>(gameJson, gameOptions);
+            
+            if(gameObj == null) return;
+            
+            /*
+            Console.Write(gameObj.GroundLevel + ", " + gameObj.Quota + ", " + gameObj.GameState + ", " + gameObj.GameTime + "\n");
+            foreach(var item in gameObj.Exposables)
+            {
+                Console.Write(item.ToString() + ", ");
+            }
+            Console.WriteLine();
+            */
+
+            GroundLevel = gameObj.GroundLevel;
+            Quota = gameObj.Quota;
+            GameState = gameObj.GameState;
+            GameTime = gameObj.GameTime;
+            Exposables = new Queue<Consumables>(gameObj.Exposables);
+
+            Console.WriteLine("| Game Loaded Successfully! |");
         }
 
         private void GiveBasicItems(Character character)
