@@ -461,6 +461,7 @@ namespace TextRPG
             spawnedMonsters.Remove(monster);
         }
 
+
         private Armor? GetRandomArmor(int level)
         {
             if (new Random().Next(1, 101) % 2 != 0) return null;
