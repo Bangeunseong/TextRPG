@@ -14,8 +14,10 @@ namespace TextRPG
             Console.ReadKey();
         }
 
-        public static void Before_JobSelectionUI()
+        public static void JobSelectionUI()
         {
+            Console.WriteLine();
+            foreach(string line in Miscs.CharacterSelection) Console.WriteLine(line);
             Console.WriteLine("\n| 1. Choose Job |");
             Console.Write("Choose Action : ");
         }
@@ -353,6 +355,25 @@ namespace TextRPG
             @"╚═══════════════════════════════════════════════════════════╝",
         };
 
+        public static string[] CharacterSelection = new string[]
+        {
+            @"╔═══════════════════════════════════════════════════════════════╗",
+            @"║                                                               ║",
+            @"║    [1. WARRIOR]          [2. WIZARD ]          [3. ARCHER]    ║",
+            @"║         /\                  '(**),                            ║",
+            @"║        /__\                   ||                 |\           ║",
+            @"║        |  |                   ||                 | '\         ║",
+            @"║        |  |                   ||                 |   |        ║",
+            @"║        |  |                   ||               >-------=>     ║",
+            @"║        |__|                   ||                 |   |        ║",
+            @"║         ||                    ||                 | ,/         ║",
+            @"║        .||.                   ()                 |/           ║",
+            @"║                                                               ║",
+            @"║                                                               ║",
+            @"║                        Select your Job!                       ║",
+            @"╚═══════════════════════════════════════════════════════════════╝"
+        };
+
         public static string[] GameOver = new string[]
         {
             @"| ======================================================================== |",
@@ -496,8 +517,7 @@ namespace TextRPG
             int option;
             while (true)
             {
-                Console.WriteLine("\n| 1: Warrior | 2: Wizard | 3. Archer |");
-                Console.Write("Select Job : ");
+                UIManager.JobSelectionUI();
                 if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); }
                 else { option = Math.Clamp(opt, 1, Enum.GetValues(typeof(Job)).Length); break; }
             }
