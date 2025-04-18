@@ -384,31 +384,19 @@ namespace TextRPG
                 if (MonsterLists.monsters[type].AttackType == AttackType.Close)
                 {
                     GoblinWarrior monster = new GoblinWarrior((GoblinWarrior)MonsterLists.monsters[type]);
-                    monster.Level = character.Level;
-                    monster.OnDeath += () =>
-                    {
-                        RemoveMonster(character, monster, 50);
-                    };
+                    SetMonster(monster, character, 50);
                     AddMonster(monster);
                 }
                 else if (MonsterLists.monsters[type].AttackType == AttackType.Long)
                 {
                     GoblinArcher monster = new GoblinArcher((GoblinArcher)MonsterLists.monsters[type]);
-                    monster.Level = character.Level;
-                    monster.OnDeath += () =>
-                    {
-                        RemoveMonster(character, monster, 65);
-                    };
+                    SetMonster(monster, character, 65);
                     AddMonster(monster);
                 }
                 else if (MonsterLists.monsters[type].AttackType == AttackType.Magic)
                 {
                     GoblinMage monster = new GoblinMage((GoblinMage)MonsterLists.monsters[type]);
-                    monster.Level = character.Level;
-                    monster.OnDeath += () =>
-                    {
-                        RemoveMonster(character, monster, 80);
-                    };
+                    SetMonster(monster, character, 80);
                     AddMonster(monster);
                 }
             }
@@ -420,6 +408,20 @@ namespace TextRPG
         public void RemoveAllMonsters() { spawnedMonsters.Clear(); }
 
         // Private Methods
+        private void SetMonster(Monster monster, Character character, int currency)
+        {
+            monster.Level = character.Level;
+            monster.AttackStat += new AttackStat(monster.AttackStat.Attack * 0.1f * monster.Level,
+                                                 monster.AttackStat.RangeAttack * 0.1f * monster.Level,
+                                                 monster.AttackStat.MagicAttack * 0.1f * monster.Level);
+            monster.DefendStat += new DefendStat(monster.DefendStat.Defend * 0.1f * monster.Level,
+                                                 monster.DefendStat.RangeDefend * 0.1f * monster.Level,
+                                                 monster.DefendStat.MagicDefend * 0.1f * monster.Level);
+            monster.OnDeath += () =>
+            {
+                RemoveMonster(character, monster, currency);
+            };
+        }
         private void AddMonster(Monster monster) { spawnedMonsters.Add(monster); }
         private void RemoveMonster(Character character, Monster monster, int currency) {
             Console.WriteLine($"| {monster.Name} is dead! |");
@@ -457,7 +459,6 @@ namespace TextRPG
                                 where item.Rarity == Rarity.Exclusive || item.Rarity == Rarity.Rare || item.Rarity == Rarity.Hero || item.Rarity == Rarity.Legend
                                 select item;
             }
-
             int ind = new Random().Next(filteredItems.Count());
             return filteredItems.ElementAt(ind);
         }
@@ -550,6 +551,9 @@ namespace TextRPG
             Quota = 10 + (GroundLevel - 1) * 5;
         }
 
+        /// <summary>
+        /// Save the character and game data to JSON files.
+        /// </summary>
         public void SaveGame()
         {
             var characterOptions = new JsonSerializerOptions
@@ -584,6 +588,10 @@ namespace TextRPG
             Console.WriteLine("| Game Saved Successfully! |");
         }
 
+        /// <summary>
+        /// Load the character and game data from JSON files.
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
         public void LoadGame()
         {
             if(!File.Exists("data.json") || !File.Exists("game.json"))
@@ -602,6 +610,7 @@ namespace TextRPG
 
             string characterJson = File.ReadAllText("data.json", Encoding.UTF8);
             var obj = JsonSerializer.Deserialize<Character>(characterJson, options);
+            // Console.WriteLine(obj?.ToString());
             SelectedCharacter = obj ?? throw new InvalidOperationException("Failed to load character data.");
 
             var gameOptions = new JsonSerializerOptions
@@ -635,6 +644,10 @@ namespace TextRPG
             Console.WriteLine("| Game Loaded Successfully! |");
         }
 
+        /// <summary>
+        /// Give basic items to the character.
+        /// </summary>
+        /// <param name="character"></param>
         private void GiveBasicItems(Character character)
         {
             // LINQ
@@ -657,6 +670,9 @@ namespace TextRPG
             if (basicHealthPotions.Count() > 0) { character.Consumables.Add(new HealthPotion((HealthPotion)basicHealthPotions.First())); }
         }
 
+        /// <summary>
+        /// Game Over UI will be displayed.
+        /// </summary>
         private void GameOver()
         {
             UIManager.GameOverUI();
@@ -667,10 +683,15 @@ namespace TextRPG
             GameTime = GameTime.Afternoon;
         }
 
+        /// <summary>
+        /// Reset the game to initial state.
+        /// </summary>
         private void ResetGame()
         {
             GameState = GameState.MainMenu;
             GameTime = GameTime.Afternoon;
+
+            Exposables.Clear();
             GroundLevel = 1;
             Quota = 10;
         }
