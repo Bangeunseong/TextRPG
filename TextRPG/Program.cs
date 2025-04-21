@@ -24,6 +24,7 @@ namespace TextRPG
             {
                 UIManager.GameOptionUI();
                 if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); }
+                else if(opt < 1 || opt > Enum.GetValues(typeof(GameOption)).Length) { Console.WriteLine("| Invalid Input! |");  }
                 else { option = Math.Clamp(opt, 1, Enum.GetValues(typeof(GameOption)).Length); break; }
             }
 
@@ -51,8 +52,8 @@ namespace TextRPG
                 UIManager.CabinUI();
 
                 if(!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); continue; }
-                option = Math.Clamp(opt, 1, 4);
-                switch (option)
+                else if(opt < 1 || opt > 4) { Console.WriteLine("| Invalid Input! |"); continue; }
+                switch (Math.Clamp(option, 1, 4))
                 {
                     case 1: Console.WriteLine("| Have a great day! |"); return;
                     case 2:
@@ -90,7 +91,7 @@ namespace TextRPG
 
                 // Get Input from user
                 if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); continue; }
-                opt = Math.Clamp(opt, 1, 2);
+                else if(opt < 1 || opt > 2) { Console.WriteLine("| Invalid Input! |"); continue; }
 
                 // If "Back" option selected, go back to main game.
                 if (opt == 1) return;
@@ -100,6 +101,7 @@ namespace TextRPG
                 string[] vals = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
                 if (!int.TryParse(vals[0].Trim(new char[] { '[', ']', ' ', ',' }), out int cat)) { Console.WriteLine("| Invalid Input! |"); break; }
                 if (!int.TryParse(vals[1].Trim(new char[] { '[', ']', ' ', ',' }), out int ind)) { Console.WriteLine("| Invalid Input! |"); break; }
+                
                 ItemCategory category = (ItemCategory)(Math.Clamp(cat, 1, 3) - 1);
                 
                 // Get interfaces from selected item to change its state
@@ -198,7 +200,7 @@ namespace TextRPG
         {
             while (true)
             {
-                UIManager.BaseUI("Options", typeof(SettingOptions));
+                UIManager.SettingOptionUI();
 
                 if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); continue; }
             
@@ -208,7 +210,7 @@ namespace TextRPG
                     case SettingOptions.Save: GameManager.SaveGame(); break;
                     case SettingOptions.Load: GameManager.LoadGame(); break;
                     case SettingOptions.EndGame: GameManager.GameState = GameState.MainMenu; Console.WriteLine(); return;
-                    default: Console.WriteLine("Invalid Input"); break;
+                    default: Console.WriteLine("Invalid Input"); continue;
                 }
             }
         }
@@ -222,31 +224,32 @@ namespace TextRPG
 
             while (true)
             {
-                UIManager.ShopUI();
+                UIManager.ShopUI(character);
                 if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); continue; }
-                switch (Math.Clamp(opt, 1, 3))
-                {
-                    // Exit from shop
-                    case 1: Console.WriteLine("| Have a nice day! |"); return;
-                    
-                    // Buy Item in shop
-                    case 2:
-                        UIManager.ShowShopList();
-                        string[] vals1 = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
-                        if (!int.TryParse(vals1[0].Trim(new char[] {'[',']',' ',','}),out int cat1)) { Console.WriteLine("| Invalid Input! |"); break; }
-                        if (!int.TryParse(vals1[1].Trim(new char[] {'[',']',' ',','}),out int ind1)) { Console.WriteLine("| Invalid Input! |"); break; }
-                        InShop_Buy((ItemCategory)(cat1 - 1), ind1);
-                        break;
+                else if(opt < 1 || opt > 3) { Console.WriteLine("| Invalid Input! |"); continue; }
+                    switch (Math.Clamp(opt, 1, 3))
+                    {
+                        // Exit from shop
+                        case 1: Console.WriteLine("| Have a nice day! |"); return;
 
-                    // Sell Item in inventory
-                    case 3:
-                        UIManager.ShowItemList(character);
-                        string[] vals2 = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
-                        if (!int.TryParse(vals2[0].Trim(new char[] { '[', ']', ' ', ',' }), out int cat2)) { Console.WriteLine("| Invalid Input! |"); break; }
-                        if (!int.TryParse(vals2[1].Trim(new char[] { '[', ']', ' ', ',' }), out int ind2)) { Console.WriteLine("| Invalid Input! |"); break; }
-                        InShop_Sell((ItemCategory)(cat2 - 1), ind2);
-                        break;
-                }
+                        // Buy Item in shop
+                        case 2:
+                            UIManager.ShowShopList();
+                            string[] vals1 = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
+                            if (!int.TryParse(vals1[0].Trim(new char[] { '[', ']', ' ', ',' }), out int cat1)) { Console.WriteLine("| Invalid Input! |"); break; }
+                            if (!int.TryParse(vals1[1].Trim(new char[] { '[', ']', ' ', ',' }), out int ind1)) { Console.WriteLine("| Invalid Input! |"); break; }
+                            InShop_Buy((ItemCategory)(cat1 - 1), ind1);
+                            break;
+
+                        // Sell Item in inventory
+                        case 3:
+                            UIManager.ShowItemList(character);
+                            string[] vals2 = Console.ReadLine().Split(new char[] { ',', ' ', '|' });
+                            if (!int.TryParse(vals2[0].Trim(new char[] { '[', ']', ' ', ',' }), out int cat2)) { Console.WriteLine("| Invalid Input! |"); break; }
+                            if (!int.TryParse(vals2[1].Trim(new char[] { '[', ']', ' ', ',' }), out int ind2)) { Console.WriteLine("| Invalid Input! |"); break; }
+                            InShop_Sell((ItemCategory)(cat2 - 1), ind2);
+                            break;
+                    }
             }
         }
 
@@ -324,21 +327,21 @@ namespace TextRPG
         /// </summary>
         private void InTown()
         {
-            UIManager.BaseUI("The Town of Adventurers", typeof(IdleOptions));
+            UIManager.BaseUI(GameManager.SelectedCharacter, "The Town of Adventurers", typeof(IdleOptions));
 
             if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); return; }
-            
-            switch ((IdleOptions)(Math.Clamp(opt - 1, 0, Enum.GetValues(typeof(IdleOptions)).Length - 1)))
-            {
-                case IdleOptions.Shop: InShop(); break;
-                case IdleOptions.Quest: InQuest(); break;
-                case IdleOptions.Dungeon: GameManager.GameState = GameState.Dungeon; break;
-                case IdleOptions.Rest: InRest(); break;
-                case IdleOptions.Inventory: InInventory(); break;
-                case IdleOptions.Status: InStatus(); break;
-                case IdleOptions.Option: InOption(); break;
-                default: Console.WriteLine("| Something is wrong! |"); break;
-            }
+            else if(opt < 1 || opt > Enum.GetValues(typeof(IdleOptions)).Length) { Console.WriteLine("| Invalid Input! |"); return; }
+                switch ((IdleOptions)(Math.Clamp(opt - 1, 0, Enum.GetValues(typeof(IdleOptions)).Length - 1)))
+                {
+                    case IdleOptions.Shop: InShop(); break;
+                    case IdleOptions.Quest: InQuest(); break;
+                    case IdleOptions.Dungeon: GameManager.GameState = GameState.Dungeon; break;
+                    case IdleOptions.Rest: InRest(); break;
+                    case IdleOptions.Inventory: InInventory(); break;
+                    case IdleOptions.Status: InStatus(); break;
+                    case IdleOptions.Option: InOption(); break;
+                    default: Console.WriteLine("| Something is wrong! |"); break;
+                }
         }
         #endregion
 
@@ -357,10 +360,11 @@ namespace TextRPG
 
             // Print UI of Kill Count and Player Options
             UIManager.KillCountUI(SpawnManager.KilledMonsterCount, GameManager.Quota);
-            UIManager.BaseUI($"The Dungeon Lv{GameManager.GroundLevel}", typeof(DungeonOptions));
+            UIManager.BaseUI(GameManager.SelectedCharacter, $"The Dungeon Lv{GameManager.GroundLevel}", typeof(DungeonOptions));
 
             // Try parsing, if successed clamp Parsed Input
             if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); return; }
+            else if(opt < 1 || opt > Enum.GetValues(typeof(DungeonOptions)).Length) { Console.WriteLine("| Invalid Input! |"); return; }
             opt = Math.Clamp(opt - 1, 0, Enum.GetValues(typeof(DungeonOptions)).Length - 1);
 
             // Choices
@@ -407,7 +411,7 @@ namespace TextRPG
         /// </summary>
         private void InBattle()
         {
-            UIManager.BaseUI("Kill the monsters", typeof(BattleOptions));
+            UIManager.BaseUI(GameManager.SelectedCharacter, "Kill the monsters", typeof(BattleOptions));
 
             if (!int.TryParse(Console.ReadLine(), out int opt)) { Console.WriteLine("| Invalid Input! |"); return; }
 

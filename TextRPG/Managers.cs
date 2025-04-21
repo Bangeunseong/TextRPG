@@ -59,12 +59,14 @@ namespace TextRPG
             Console.Write("Choose Action : ");
         }
 
-        public static void ShopUI()
+        public static void ShopUI(Character character)
         {
             Console.WriteLine("\n| ----- Welcome to Henry's Shop! ----- |");
             foreach(string line in Miscs.Henry) Console.WriteLine(line);
             Console.WriteLine("| ---------------------------------- |");
-            Console.WriteLine("\n| Actions |");
+
+            Console.WriteLine($"\n| Currency : {character.Currency} |");    
+            Console.WriteLine("| Actions |");
             Console.WriteLine("| 1. Back |");
             Console.WriteLine("| 2. Buy |");
             Console.WriteLine("| 3. Sell |");
@@ -217,10 +219,23 @@ namespace TextRPG
             Console.Write("\nChoose Action : ");
         }
 
-        public static void BaseUI(string headLine, Type type)
+        public static void SettingOptionUI()
+        {
+            Console.WriteLine($"\n| ----- Options ----- |");
+            int i = 1;
+            foreach (var opt in Enum.GetValues(typeof(SettingOptions)))
+            {
+                Console.WriteLine($"| {i++}. {opt} |");
+            }
+            Console.Write("\nChoose Action : ");
+        }
+
+        public static void BaseUI(Character character, string headLine, Type type)
         {
             Console.WriteLine($"\n| ----- {headLine} ----- |");
             Console.WriteLine($"| Current Time : {GameManager.GameTime} |");
+            Console.WriteLine($"| Health : {character.Health} |");
+            Console.WriteLine($"| Currency : {character.Currency} |");
             Console.WriteLine();
             int i = 1;
             foreach (var opt in Enum.GetValues(type))
@@ -762,9 +777,7 @@ namespace TextRPG
             var basicChestArmors = from armor in ItemLists.Armors
                                    where armor.GetType().Equals(typeof(ChestArmor)) && armor.Rarity == Rarity.Common
                                    select armor;
-            var basicSwords = from sword in ItemLists.Weapons
-                              where sword.GetType().Equals(typeof(Sword)) && sword.Rarity == Rarity.Common
-                              select sword;
+            
             var basicHealthPotions = from item in ItemLists.Consumables
                                      where item.GetType().Equals(typeof(HealthPotion)) && item.Rarity == Rarity.Common
                                      select item;
@@ -774,7 +787,29 @@ namespace TextRPG
 
             if (basicHelmets.Count() > 0) { character.Armors.Add(new Helmet((Helmet)basicHelmets.First())); }
             if (basicChestArmors.Count() > 0) { character.Armors.Add(new ChestArmor((ChestArmor)basicChestArmors.First())); }
-            if (basicSwords.Count() > 0) { character.Weapons.Add(new Sword((Sword)basicSwords.First())); }
+            
+            if (character.GetType().Equals(typeof(Warrior)))
+            {
+                var basicSwords = from sword in ItemLists.Weapons
+                              where sword.GetType().Equals(typeof(Sword)) && sword.Rarity == Rarity.Common
+                              select sword;
+                if (basicSwords.Count() > 0) { character.Weapons.Add(new Sword((Sword)basicSwords.First())); }
+            }
+            else if (character.GetType().Equals(typeof(Wizard)))
+            {
+                var basicStaffs = from staff in ItemLists.Weapons
+                                  where staff.GetType().Equals(typeof(Staff)) && staff.Rarity == Rarity.Common
+                                  select staff;
+                if (basicStaffs.Count() > 0) { character.Weapons.Add(new Staff((Staff)basicStaffs.First())); }
+            }
+            else
+            {
+                var basicBows = from bow in ItemLists.Weapons
+                                where bow.GetType().Equals(typeof(Bow)) && bow.Rarity == Rarity.Common
+                                select bow;
+                if (basicBows.Count() > 0) { character.Weapons.Add(new Bow((Bow)basicBows.First())); }
+            }
+
             if (basicHealthPotions.Count() > 0) { character.Consumables.Add(new HealthPotion((HealthPotion)basicHealthPotions.First())); }
             if (basicMagicPotions.Count() > 0) { character.Consumables.Add(new MagicPotion((MagicPotion)basicMagicPotions.First())); }
         }

@@ -37,6 +37,8 @@ namespace TextRPG
     {
         public void OnContracted(Character character);
         public void OnCompleted(Character character);
+        public void OnCompletable();
+        public void OnNotCompletable();
     }
 
     interface ICancelable

@@ -63,6 +63,13 @@ namespace TextRPG
     }
     #endregion
 
+    #region Quest Difficulty
+    public enum QuestDifficulty
+    {
+        Easy, Normal, Hard,
+    }
+    #endregion
+
     #region Game Mechanism Sources
     public enum GameOption
     {
