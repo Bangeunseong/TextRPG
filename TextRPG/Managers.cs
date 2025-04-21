@@ -651,6 +651,9 @@ namespace TextRPG
         /// </summary>
         public void SaveGame()
         {
+            if (!Directory.Exists("data")) Directory.CreateDirectory("data");
+            
+
             var characterOptions = new JsonSerializerOptions
             {
                 Converters = { 
@@ -661,7 +664,7 @@ namespace TextRPG
             };
 
             string characterJson = JsonSerializer.Serialize(SelectedCharacter, characterOptions);
-            File.WriteAllText("character.json", characterJson, new UTF8Encoding(true));
+            File.WriteAllText("data/character.json", characterJson, new UTF8Encoding(true));
 
             var gameData = new GameData {
                 GroundLevel = GroundLevel,
@@ -683,7 +686,7 @@ namespace TextRPG
                 WriteIndented = true
             };
             string gameJson = JsonSerializer.Serialize(gameData, gameOptions);
-            File.WriteAllText("game.json", gameJson, new UTF8Encoding(true));
+            File.WriteAllText("data/game.json", gameJson, new UTF8Encoding(true));
 
             Console.WriteLine("| Game Saved Successfully! |");
         }
@@ -694,7 +697,7 @@ namespace TextRPG
         /// <exception cref="InvalidOperationException"></exception>
         public void LoadGame()
         {
-            if(!File.Exists("character.json") || !File.Exists("game.json"))
+            if(!File.Exists("data/character.json") || !File.Exists("data/game.json"))
             {
                 Console.WriteLine("| No saved data found! |");
                 return;
@@ -709,7 +712,7 @@ namespace TextRPG
                 WriteIndented = true
             };
 
-            string characterJson = File.ReadAllText("character.json", Encoding.UTF8);
+            string characterJson = File.ReadAllText("data/character.json", Encoding.UTF8);
             var obj = JsonSerializer.Deserialize<Character>(characterJson, options);
             // Console.WriteLine(obj?.ToString());
             SelectedCharacter = obj ?? throw new InvalidOperationException("Failed to load character data.");
@@ -723,7 +726,7 @@ namespace TextRPG
                 WriteIndented = true
             };
 
-            string gameJson = File.ReadAllText("game.json", Encoding.UTF8);
+            string gameJson = File.ReadAllText("data/game.json", Encoding.UTF8);
             var gameObj = JsonSerializer.Deserialize<GameData>(gameJson, gameOptions);
             
             if(gameObj == null) throw new InvalidOperationException("Failed to load game data.");
