@@ -142,6 +142,10 @@ namespace TextRPG
         }
 
         // Methods
+        /// <summary>
+        /// Calls when the armor is equipped
+        /// </summary>
+        /// <param name="character"></param>
         public void OnEquipped(Character character)
         {
             if (IsEquipped) { Console.WriteLine($"| {Name} is already equipped! |"); return; }
@@ -152,6 +156,10 @@ namespace TextRPG
             Console.WriteLine($"| {name} equipped! |");
         }
 
+        /// <summary>
+        /// Calls when the armor is unequipped
+        /// </summary>
+        /// <param name="character"></param>
         public void OnUnequipped(Character character)
         {
             if (!IsEquipped) { Console.WriteLine($"| {Name} is not equipped! |"); return; }
@@ -160,14 +168,22 @@ namespace TextRPG
             character.DefendStat -= DefendStat;
             Console.WriteLine($"| {name} unequipped! |");
         }
-        
+
+        /// <summary>
+        /// Calls when the armor is purchased
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnPurchased(Character character) 
         {
             if (character.Currency < Price) { Console.WriteLine("| Not enough Money! |"); return; }
             character.Currency -= Price;
             Console.WriteLine($"| {name} is purchased! |"); 
         }
-        
+
+        /// <summary>
+        /// Calls when the armor is sold
+        /// </summary>
+        /// <param name="character"></param>
         public void OnSold(Character character)
         {
             if(IsEquipped) { Console.WriteLine($"| Not possible to sell!, {Name} is equipped! |"); return; }
@@ -175,19 +191,31 @@ namespace TextRPG
             character.Armors.Remove(this);
             Console.WriteLine($"| {Name} is sold! |");
         }
-        
+
+        /// <summary>
+        /// Calls when the armor is picked
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnPicked(Character character)
         {
             Console.WriteLine($"| Picked {name}! |");
         }
 
+        /// <summary>
+        /// Calls when the armor is dropped
+        /// </summary>
+        /// <param name="character"></param>
         public void OnDropped(Character character)
         {
             if (IsEquipped) { Console.WriteLine($"| Not possible to drop!, {Name} is equipped! |"); return; }
             character.Armors.Remove(this);
             Console.WriteLine($"| Dropped {name}! |");
         }
-        
+
+        /// <summary>
+        /// Describe the armor
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new();
@@ -219,13 +247,20 @@ namespace TextRPG
             ArmorPosition = armorPosition;
         }
 
-
+        /// <summary>
+        /// Calls when the armor is purchased, adds the armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Armors.Add(new Helmet(this));
         }
 
+        /// <summary>
+        /// Calls when the armor is picked, adds the armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -252,12 +287,20 @@ namespace TextRPG
             ArmorPosition = armorPosition;
         }
 
+        /// <summary>
+        /// Calls when the armor is purchased, adds the chest armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Armors.Add(new ChestArmor(this));
         }
 
+        /// <summary>
+        /// Calls when the armor is picked, adds the chest armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -284,12 +327,20 @@ namespace TextRPG
             ArmorPosition = armorPosition;
         }
 
+        /// <summary>
+        /// Calls when the armor is purchased, adds the leg armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Armors.Add(new LegArmor(this));
         }
 
+        /// <summary>
+        /// Calls when the armor is picked, adds the leg armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -316,12 +367,20 @@ namespace TextRPG
             ArmorPosition = armorPosition;
         }
 
+        /// <summary>
+        /// Calls when the armor is purchased, adds the foot armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Armors.Add(new FootArmor(this));
         }
 
+        /// <summary>
+        /// Calls when the armor is picked, adds the foot armor to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -348,12 +407,20 @@ namespace TextRPG
             ArmorPosition = armorPosition;
         }
 
+        /// <summary>
+        /// Calls when the armor is purchased, adds the gauntlet to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Armors.Add(new Gauntlet(this));
         }
 
+        /// <summary>
+        /// Calls when the armor is picked, adds the gauntlet to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -406,6 +473,10 @@ namespace TextRPG
             else this.attackStat = new(1, 1, 1);
         }
 
+        /// <summary>
+        /// Calls when the weapon is equipped
+        /// </summary>
+        /// <param name="character"></param>
         public void OnEquipped(Character character)
         {
             if (IsEquipped) { Console.WriteLine($"| {Name} is already equipped! |"); return; }
@@ -416,6 +487,10 @@ namespace TextRPG
             Console.WriteLine($"| {name} equipped! |");
         }
 
+        /// <summary>
+        /// Calls when the weapon is unequipped
+        /// </summary>
+        /// <param name="character"></param>
         public void OnUnequipped(Character character)
         {
             if (!IsEquipped) { Console.WriteLine($"| {Name} is not equipped! |"); return; }
@@ -425,25 +500,41 @@ namespace TextRPG
             Console.WriteLine($"| {name} unequipped! |");
         }
 
+        /// <summary>
+        /// Calls when the weapon is purchased
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnPurchased(Character character) 
         { 
             if(character.Currency < Price) { Console.WriteLine("| Not enough Money! |"); return; }
             character.Currency -= Price; 
             Console.WriteLine($"| {name} is purchased |"); 
         }
-        
+
+        /// <summary>
+        /// Calls when the weapon is sold
+        /// </summary>
+        /// <param name="character"></param>
         public void OnSold(Character character)
         {
             character.Currency += Price;
             character.Weapons.Remove(this);
             Console.WriteLine($"| {Name} is sold! |");
         }
-        
+
+        /// <summary>
+        /// Calls when the weapon is picked
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnPicked(Character character)
         {
             Console.WriteLine($"| Picked {name}! |");
         }
 
+        /// <summary>
+        /// Calls when the weapon is dropped
+        /// </summary>
+        /// <param name="character"></param>
         public void OnDropped(Character character)
         {
             if (IsEquipped) { Console.WriteLine($"| {Name} is equipped! |"); return; }
@@ -451,6 +542,10 @@ namespace TextRPG
             Console.WriteLine($"| Dropped {name}! |");
         }
 
+        /// <summary>
+        /// Describe the weapon
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new();
@@ -481,12 +576,20 @@ namespace TextRPG
             AttackType = attackType;
         }
 
+        /// <summary>
+        /// Calls when the weapon is purchased, adds the sword to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Weapons.Add(new Sword(this));
         }
 
+        /// <summary>
+        /// Calls when the weapon is picked, adds the sword to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -512,12 +615,20 @@ namespace TextRPG
             AttackType = attackType;
         }
 
+        /// <summary>
+        /// Calls when the weapon is purchased, adds the bow to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Weapons.Add(new Bow(this));
         }
 
+        /// <summary>
+        /// Calls when the weapon is picked, adds the bow to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -543,12 +654,20 @@ namespace TextRPG
             AttackType = attackType;
         }
 
+        /// <summary>
+        /// Calls when the weapon is purchased, adds the staff to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Weapons.Add(new Staff(this));
         }
 
+        /// <summary>
+        /// Calls when the weapon is picked, adds the staff to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
@@ -585,23 +704,40 @@ namespace TextRPG
         }
 
         // Methods
+        /// <summary>
+        /// Calls when the consumable is used
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnUsed(Character character)
         {
             character.Consumables.Remove(this);
         }
 
+        /// <summary>
+        /// This method is called by game manager when the gametime passes night.
+        /// It removes all buffs from the character given by this item.
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnDeBuffed(Character character)
         {
             Console.WriteLine("| All Buffs Removed! |");
         }
-        
+
+        /// <summary>
+        /// Calls when the consumable is purchased
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnPurchased(Character character)
         {
             if (character.Currency < Price) { Console.WriteLine("| Not enough Money! |"); return; }
             character.Currency -= Price;
             Console.WriteLine($"| {name} is purchased |");
         }
-        
+
+        /// <summary>
+        /// Calls when the consumable is sold
+        /// </summary>
+        /// <param name="character"></param>
         public void OnSold(Character character)
         {
             character.Currency += Price;
@@ -609,11 +745,19 @@ namespace TextRPG
             Console.WriteLine($"| {Name} is sold! |");
         }
 
+        /// <summary>
+        /// Calls when the consumable is picked
+        /// </summary>
+        /// <param name="character"></param>
         public virtual void OnPicked(Character character)
         {
             Console.WriteLine($"| Picked {name}! |");
         }
 
+        /// <summary>
+        /// Calls when the consumable is dropped
+        /// </summary>
+        /// <param name="character"></param>
         public void OnDropped(Character character)
         {
             character.Consumables.Remove(this);
@@ -637,26 +781,43 @@ namespace TextRPG
         }
 
         // Methods
+        /// <summary>
+        /// Calls when the health potion is used, restores health to the character.
+        /// Its coefficient is multiplied by the rarity of the item.
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnUsed(Character character)
         {
             if(character.Health >= character.MaxHealth) { Console.WriteLine("| Health is already full! |"); return; }
             
             base.OnUsed(character);
-            character.OnHeal(Coefficient + (Coefficient * (int)Rarity * 0.5f));
+            character.OnHeal(Coefficient + (Coefficient * (int)Rarity * 0.1f));
         }
 
+        /// <summary>
+        /// Calls when the health potion is purchased, adds the health potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Consumables.Add(new HealthPotion(this));
         }
 
+        /// <summary>
+        /// Calls when the health potion is picked, adds the health potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
             character.Consumables.Add(new HealthPotion(this));
         }
 
+        /// <summary>
+        /// Describe the health potion
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new();
@@ -670,31 +831,50 @@ namespace TextRPG
     /// </summary>
     class MagicPotion : Consumables
     {
+        // Constructor
         public MagicPotion(string name, float coefficient, int price, Rarity rarity) : base(name, coefficient, price, ConsumableCategory.IncreaseMagicPoint, rarity) { }
         public MagicPotion(MagicPotion potion) : base(potion.Name, potion.Coefficient, potion.Price, potion.ConsumableCategory, potion.Rarity) { }
 
         [JsonConstructor]
         public MagicPotion(string name, float coefficient, int price, Rarity rarity, ConsumableCategory consumableCategory) : base(name, coefficient, price, consumableCategory, rarity) { }
 
+        // Methods
+        /// <summary>
+        /// Calls when the magic potion is used, restores magic point to the character.
+        /// Its coefficient is multiplied by the rarity of the item.
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnUsed(Character character)
         {
             if (character.MagicPoint >= character.MaxMagicPoint) { Console.WriteLine("| Magic is already full! |"); return; }
             base.OnUsed(character);
-            character.OnMagicPointHeal(Coefficient + (Coefficient * (int)Rarity * 0.5f));
+            character.OnMagicPointHeal(Coefficient + (Coefficient * (int)Rarity * 0.1f));
         }
 
+        /// <summary>
+        /// Calls when the magic potion is purchased, adds the magic potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Consumables.Add(new MagicPotion(this));
         }
 
+        /// <summary>
+        /// Calls when the magic potion is picked, adds the magic potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
             character.Consumables.Add(new MagicPotion(this));
         }
 
+        /// <summary>
+        /// Describe the magic potion
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new();
@@ -708,8 +888,10 @@ namespace TextRPG
     /// </summary>
     class AttackBuffPotion : Consumables
     {
+        // Field
         private AttackStat attackStat;
 
+        // Property
         public AttackStat AttackStat { get { return attackStat; } protected set { attackStat = value; } }
 
         // Constructor
@@ -731,6 +913,10 @@ namespace TextRPG
         }
 
         // Methods
+        /// <summary>
+        /// Calls when the attack buff potion is used, buffs attack to the character.
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnUsed(Character character)
         {
             GameManager.Exposables.Enqueue(this);
@@ -745,18 +931,30 @@ namespace TextRPG
             character.AttackStat -= AttackStat;
         }
 
+        /// <summary>
+        /// Calls when the attack buff potion is purchased, adds the attack buff potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Consumables.Add(new AttackBuffPotion(this));
         }
 
+        /// <summary>
+        /// Calls when the attack buff potion is picked, adds the attack buff potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
             character.Consumables.Add(new AttackBuffPotion(this));
         }
 
+        /// <summary>
+        /// Describe the attack buff potion
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new();
@@ -799,6 +997,10 @@ namespace TextRPG
         }
 
         // Methods
+        /// <summary>
+        /// Calls when the defend buff potion is used, buffs defend to the character.
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnUsed(Character character)
         {
             GameManager.Exposables.Enqueue(this);
@@ -813,18 +1015,30 @@ namespace TextRPG
             character.DefendStat -= DefendStat;
         }
 
+        /// <summary>
+        /// Calls when the defend buff potion is purchased, adds the defend buff potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Consumables.Add(new DefendBuffPotion(this));
         }
 
+        /// <summary>
+        /// Calls when the defend buff potion is picked, adds the defend buff potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
             character.Consumables.Add(new DefendBuffPotion(this));
         }
 
+        /// <summary>
+        /// Describe the defend buff potion
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new();
@@ -871,6 +1085,10 @@ namespace TextRPG
         }
 
         // Methods
+        /// <summary>
+        /// Calls when the all buff potion is used, buffs all parameters to the character.
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnUsed(Character character)
         {
             GameManager.Exposables.Enqueue(this);
@@ -887,18 +1105,30 @@ namespace TextRPG
             character.DefendStat -= DefendStat;
         }
 
+        /// <summary>
+        /// Calls when the all buff potion is purchased, adds the all buff potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPurchased(Character character)
         {
             base.OnPurchased(character);
             character.Consumables.Add(new AllBuffPotion(this));
         }
 
+        /// <summary>
+        /// Calls when the all buff potion is picked, adds the all buff potion to the character's inventory
+        /// </summary>
+        /// <param name="character"></param>
         public override void OnPicked(Character character)
         {
             base.OnPicked(character);
             character.Consumables.Add(new AllBuffPotion(this));
         }
 
+        /// <summary>
+        /// Describe the all buff potion
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             StringBuilder sb = new();

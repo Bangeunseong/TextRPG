@@ -654,26 +654,31 @@ namespace TextRPG
             var characterOptions = new JsonSerializerOptions
             {
                 Converters = { 
-                    new CharacterConverter(), new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(),
+                    new CharacterConverter(), new ArmorConverter(), 
+                    new WeaponConverter(), new ConsumableConverter(),
                 },
                 WriteIndented = true
             };
 
             string characterJson = JsonSerializer.Serialize(SelectedCharacter, characterOptions);
-            File.WriteAllText("data.json", characterJson, new UTF8Encoding(true));
+            File.WriteAllText("character.json", characterJson, new UTF8Encoding(true));
 
             var gameData = new GameData {
                 GroundLevel = GroundLevel,
                 Quota = Quota,
                 GameState = GameState,
                 GameTime = GameTime,
+                
+                // TODO : Add Quest list
+
                 Exposables = Exposables.ToList()
             };
 
             var gameOptions = new JsonSerializerOptions
             {
                 Converters = {
-                    new ConsumableConverter()
+                    new ConsumableConverter(),
+                    new QuestConverter(),
                 },
                 WriteIndented = true
             };
@@ -689,7 +694,7 @@ namespace TextRPG
         /// <exception cref="InvalidOperationException"></exception>
         public void LoadGame()
         {
-            if(!File.Exists("data.json") || !File.Exists("game.json"))
+            if(!File.Exists("character.json") || !File.Exists("game.json"))
             {
                 Console.WriteLine("| No saved data found! |");
                 return;
@@ -698,12 +703,13 @@ namespace TextRPG
             var options = new JsonSerializerOptions
             {
                 Converters = {
-                    new CharacterConverter(), new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(),
+                    new CharacterConverter(), new ArmorConverter(),
+                    new WeaponConverter(), new ConsumableConverter(),
                 },
                 WriteIndented = true
             };
 
-            string characterJson = File.ReadAllText("data.json", Encoding.UTF8);
+            string characterJson = File.ReadAllText("character.json", Encoding.UTF8);
             var obj = JsonSerializer.Deserialize<Character>(characterJson, options);
             // Console.WriteLine(obj?.ToString());
             SelectedCharacter = obj ?? throw new InvalidOperationException("Failed to load character data.");
@@ -711,7 +717,8 @@ namespace TextRPG
             var gameOptions = new JsonSerializerOptions
             {
                 Converters = {
-                    new ConsumableConverter()
+                    new ConsumableConverter(),
+                    new QuestConverter(),
                 },
                 WriteIndented = true
             };
@@ -719,7 +726,7 @@ namespace TextRPG
             string gameJson = File.ReadAllText("game.json", Encoding.UTF8);
             var gameObj = JsonSerializer.Deserialize<GameData>(gameJson, gameOptions);
             
-            if(gameObj == null) return;
+            if(gameObj == null) throw new InvalidOperationException("Failed to load game data.");
             
             /*
             Console.Write(gameObj.GroundLevel + ", " + gameObj.Quota + ", " + gameObj.GameState + ", " + gameObj.GameTime + "\n");

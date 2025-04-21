@@ -32,4 +32,15 @@ namespace TextRPG
         public void OnPicked(Character character);
         public void OnDropped(Character character);
     }
+
+    interface IContractable
+    {
+        public void OnContracted(Character character);
+        public void OnCompleted(Character character);
+    }
+
+    interface ICancelable
+    {
+        public void OnCanceled(Character character);
+    }
 }
