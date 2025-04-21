@@ -13,6 +13,8 @@ namespace TextRPG
         // Property
         public float MaxHealth { get { return characterStat.MaxHealth; } }
         public float Health { get { return characterStat.Health; } set { characterStat.Health = Math.Clamp(value, 0, MaxHealth); } }
+        public float MaxMagicPoint { get { return characterStat.MaxMagicPoint; } }
+        public float MagicPoint { get { return characterStat.MagicPoint; } set { characterStat.MagicPoint = Math.Clamp(value, 0, MaxMagicPoint); } }
         public string Name { get { return characterStat.Name; } set { characterStat.Name = value; } }
         public int Level { get { return characterStat.Level; } set { characterStat.Level = value; } }
         public AttackStat AttackStat { get { return characterStat.AttackStat; } set { characterStat.AttackStat = value; } }
@@ -103,9 +105,9 @@ namespace TextRPG
     static class MonsterLists
     {
         public static Monster[] monsters = {
-            new GoblinWarrior(new CharacterStat("Normal Goblin Warrior", 150, 1, new AttackStat(25f, 1f, 1f), new DefendStat(18, 15, 3)), 20),
-            new GoblinArcher(new CharacterStat("Normal Goblin Archer", 120, 1, new AttackStat(1f, 25f, 1f), new DefendStat(15, 18, 3)), 25),
-            new GoblinMage(new CharacterStat("Normal Goblin Mage", 100, 1, new AttackStat(1f, 1f, 25f), new DefendStat(3, 15, 18)), 30),
+            new GoblinWarrior(new CharacterStat("Normal Goblin Warrior", 150, 10, 1, new AttackStat(20f, 1f, 1f), new DefendStat(18, 15, 3)), 20),
+            new GoblinArcher(new CharacterStat("Normal Goblin Archer", 120, 30, 1, new AttackStat(1f, 20f, 1f), new DefendStat(15, 18, 3)), 25),
+            new GoblinMage(new CharacterStat("Normal Goblin Mage", 100, 50, 1, new AttackStat(1f, 1f, 20f), new DefendStat(3, 15, 18)), 30),
         };
     }
 }

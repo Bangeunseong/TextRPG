@@ -29,7 +29,7 @@ namespace TextRPG
 
             switch ((GameOption)(option - 1))
             {
-                case GameOption.NewGame: GameManager.Switch_Job(); GameManager.GameState = GameState.Town; break;
+                case GameOption.NewGame: GameManager.SelectJob(); GameManager.GameState = GameState.Town; break;
                 case GameOption.Continue: GameManager.LoadGame(); break;
                 case GameOption.Exit: return false;
             }
@@ -309,7 +309,16 @@ namespace TextRPG
                     GameManager.SelectedCharacter.Consumables[ind - 1].OnSold(GameManager.SelectedCharacter); break;
             }
         }
+        
+        // TODO: Implement Quest System
+        /// <summary>
+        /// Gives interface what player can do in quest.
+        /// </summary>
+        private void InQuest()
+        {
 
+        }
+        
         /// <summary>
         /// Gives interface what player can do in town(Shop, Rest, Dungeon, Inventory, Status, Option).
         /// </summary>
@@ -322,6 +331,7 @@ namespace TextRPG
             switch ((IdleOptions)(Math.Clamp(opt - 1, 0, Enum.GetValues(typeof(IdleOptions)).Length - 1)))
             {
                 case IdleOptions.Shop: InShop(); break;
+                case IdleOptions.Quest: InQuest(); break;
                 case IdleOptions.Dungeon: GameManager.GameState = GameState.Dungeon; break;
                 case IdleOptions.Rest: InRest(); break;
                 case IdleOptions.Inventory: InInventory(); break;
@@ -372,7 +382,7 @@ namespace TextRPG
             int random = new Random().Next(0, 10);
             if (random >= ((int)option*2) && random < ((int)option * 2 + 2 +((int)option % 2)))
             {
-                SpawnManager.SpawnMonsters(GameManager.SelectedCharacter);
+                SpawnManager.SpawnMonsters(GameManager.SelectedCharacter, GameManager.GroundLevel);
                 UIManager.MonsterEncounterUI(SpawnManager);
                 GameManager.GameState = GameState.Battle;
             }
@@ -412,6 +422,7 @@ namespace TextRPG
             
             if (SpawnManager.GetMonsterCount() <= 0) { GameManager.GameState = GameState.Dungeon; return; }
             
+            // Monster Attack Mechanism
             foreach(Monster monster in SpawnManager.spawnedMonsters)
             {
                 if(monster.AttackType == AttackType.Close) GameManager.SelectedCharacter.OnDamage(AttackType.Close, monster.AttackStat.Attack);

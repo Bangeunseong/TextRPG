@@ -134,6 +134,7 @@ namespace TextRPG
             Console.WriteLine($"| \"Lv {character.Level:D2}\" |");
             Console.WriteLine($"| \"Experience\" : {character.Exp:F2} |");
             Console.WriteLine($"| \"Health\" : {character.Health:F2} |");
+            Console.WriteLine($"| \"Magic Point\" : {character.MagicPoint:F2} |");
             Console.WriteLine($"| \"Currency\" : {character.Currency} |");
 
             Console.WriteLine("\n| ----- \"Status\" ----- |");
@@ -371,7 +372,7 @@ namespace TextRPG
             @"║                                                               ║",
             @"║                                                               ║",
             @"║                        Select your Job!                       ║",
-            @"╚═══════════════════════════════════════════════════════════════╝"
+            @"╚═══════════════════════════════════════════════════════════════╝",
         };
 
         public static string[] GameOver = new string[]
@@ -396,9 +397,9 @@ namespace TextRPG
 
         public SpawnManager() { }
 
-        public void SpawnMonsters(Character character)
+        public void SpawnMonsters(Character character, int groundLevel)
         {
-            int count = new Random().Next(1, 3);
+            int count = new Random().Next(1, 5);
             for(int i = 0; i < count; i++)
             {
                 int type = new Random().Next(MonsterLists.monsters.Length);
@@ -406,19 +407,19 @@ namespace TextRPG
                 if (MonsterLists.monsters[type].AttackType == AttackType.Close)
                 {
                     GoblinWarrior monster = new GoblinWarrior((GoblinWarrior)MonsterLists.monsters[type]);
-                    SetMonster(monster, character, 50);
+                    SetMonster(monster, groundLevel, character, 50);
                     AddMonster(monster);
                 }
                 else if (MonsterLists.monsters[type].AttackType == AttackType.Long)
                 {
                     GoblinArcher monster = new GoblinArcher((GoblinArcher)MonsterLists.monsters[type]);
-                    SetMonster(monster, character, 65);
+                    SetMonster(monster, groundLevel, character, 65);
                     AddMonster(monster);
                 }
                 else if (MonsterLists.monsters[type].AttackType == AttackType.Magic)
                 {
                     GoblinMage monster = new GoblinMage((GoblinMage)MonsterLists.monsters[type]);
-                    SetMonster(monster, character, 80);
+                    SetMonster(monster, groundLevel, character, 80);
                     AddMonster(monster);
                 }
             }
@@ -430,7 +431,8 @@ namespace TextRPG
         public void RemoveAllMonsters() { spawnedMonsters.Clear(); }
 
         // Private Methods
-        private void SetMonster(Monster monster, Character character, int currency)
+        // TODO: Increase monster stat based on ground level
+        private void SetMonster(Monster monster, int groundLevel, Character character, int currency)
         {
             monster.Level = character.Level;
             monster.AttackStat += new AttackStat(monster.AttackStat.Attack * 0.1f * monster.Level,
@@ -578,14 +580,13 @@ namespace TextRPG
         public GameManager(int groundLevel = 1) { GroundLevel = groundLevel; }
 
         // Methods
-        
         /// <summary>
         /// Job Selection UI will be displayed.
         /// This method will return true if the job selected successfully.
         /// If not, it will return false.
         /// </summary>
         /// <returns>Returns true, if job selected successfully. If not, returns false.</returns>
-        public void Switch_Job()
+        public void SelectJob()
         {
             int option;
             while (true)
@@ -600,17 +601,17 @@ namespace TextRPG
                 case Job.Warrior:
                     Console.WriteLine("| You selected Warrior! |");
                     Console.Write("Type the name of your warrior : ");
-                    SelectedCharacter = new Warrior(new CharacterStat(Console.ReadLine(), 150, 1, new AttackStat(30f, 6f, 1f), new DefendStat(25, 15, 5)), 100, 0);
+                    SelectedCharacter = new Warrior(new CharacterStat(Console.ReadLine(), 150, 50, 1, new AttackStat(30f, 6f, 1f), new DefendStat(25, 15, 5)), 100, 0);
                     break;
                 case Job.Wizard:
                     Console.WriteLine("| You selected Wizard! |");
                     Console.Write("Type the name of your wizard : ");
-                    SelectedCharacter = new Wizard(new CharacterStat(Console.ReadLine(), 100, 1, new AttackStat(1f, 6f, 30f), new DefendStat(5, 10, 30)), 100, 0);
+                    SelectedCharacter = new Wizard(new CharacterStat(Console.ReadLine(), 100, 65, 1, new AttackStat(1f, 6f, 30f), new DefendStat(5, 10, 30)), 100, 0);
                     break;
                 case Job.Archer:
                     Console.WriteLine("| You selected Archer! |");
                     Console.Write("Type the name of your archer : ");
-                    SelectedCharacter = new Archer(new CharacterStat(Console.ReadLine(), 120, 1, new AttackStat(6f, 30f, 1f), new DefendStat(15, 25, 5)), 100, 0);
+                    SelectedCharacter = new Archer(new CharacterStat(Console.ReadLine(), 120, 80, 1, new AttackStat(6f, 30f, 1f), new DefendStat(15, 25, 5)), 100, 0);
                     break;
             }
 
@@ -653,26 +654,31 @@ namespace TextRPG
             var characterOptions = new JsonSerializerOptions
             {
                 Converters = { 
-                    new CharacterConverter(), new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(),
+                    new CharacterConverter(), new ArmorConverter(), 
+                    new WeaponConverter(), new ConsumableConverter(),
                 },
                 WriteIndented = true
             };
 
             string characterJson = JsonSerializer.Serialize(SelectedCharacter, characterOptions);
-            File.WriteAllText("data.json", characterJson, new UTF8Encoding(true));
+            File.WriteAllText("character.json", characterJson, new UTF8Encoding(true));
 
             var gameData = new GameData {
                 GroundLevel = GroundLevel,
                 Quota = Quota,
                 GameState = GameState,
                 GameTime = GameTime,
+                
+                // TODO : Add Quest list
+
                 Exposables = Exposables.ToList()
             };
 
             var gameOptions = new JsonSerializerOptions
             {
                 Converters = {
-                    new ConsumableConverter()
+                    new ConsumableConverter(),
+                    new QuestConverter(),
                 },
                 WriteIndented = true
             };
@@ -688,7 +694,7 @@ namespace TextRPG
         /// <exception cref="InvalidOperationException"></exception>
         public void LoadGame()
         {
-            if(!File.Exists("data.json") || !File.Exists("game.json"))
+            if(!File.Exists("character.json") || !File.Exists("game.json"))
             {
                 Console.WriteLine("| No saved data found! |");
                 return;
@@ -697,12 +703,13 @@ namespace TextRPG
             var options = new JsonSerializerOptions
             {
                 Converters = {
-                    new CharacterConverter(), new ArmorConverter(), new WeaponConverter(), new ConsumableConverter(),
+                    new CharacterConverter(), new ArmorConverter(),
+                    new WeaponConverter(), new ConsumableConverter(),
                 },
                 WriteIndented = true
             };
 
-            string characterJson = File.ReadAllText("data.json", Encoding.UTF8);
+            string characterJson = File.ReadAllText("character.json", Encoding.UTF8);
             var obj = JsonSerializer.Deserialize<Character>(characterJson, options);
             // Console.WriteLine(obj?.ToString());
             SelectedCharacter = obj ?? throw new InvalidOperationException("Failed to load character data.");
@@ -710,7 +717,8 @@ namespace TextRPG
             var gameOptions = new JsonSerializerOptions
             {
                 Converters = {
-                    new ConsumableConverter()
+                    new ConsumableConverter(),
+                    new QuestConverter(),
                 },
                 WriteIndented = true
             };
@@ -718,7 +726,7 @@ namespace TextRPG
             string gameJson = File.ReadAllText("game.json", Encoding.UTF8);
             var gameObj = JsonSerializer.Deserialize<GameData>(gameJson, gameOptions);
             
-            if(gameObj == null) return;
+            if(gameObj == null) throw new InvalidOperationException("Failed to load game data.");
             
             /*
             Console.Write(gameObj.GroundLevel + ", " + gameObj.Quota + ", " + gameObj.GameState + ", " + gameObj.GameTime + "\n");
@@ -757,11 +765,15 @@ namespace TextRPG
             var basicHealthPotions = from item in ItemLists.Consumables
                                      where item.GetType().Equals(typeof(HealthPotion)) && item.Rarity == Rarity.Common
                                      select item;
+            var basicMagicPotions = from item in ItemLists.Consumables
+                                    where item.GetType().Equals(typeof(MagicPotion)) && item.Rarity == Rarity.Common
+                                    select item;
 
             if (basicHelmets.Count() > 0) { character.Armors.Add(new Helmet((Helmet)basicHelmets.First())); }
             if (basicChestArmors.Count() > 0) { character.Armors.Add(new ChestArmor((ChestArmor)basicChestArmors.First())); }
             if (basicSwords.Count() > 0) { character.Weapons.Add(new Sword((Sword)basicSwords.First())); }
             if (basicHealthPotions.Count() > 0) { character.Consumables.Add(new HealthPotion((HealthPotion)basicHealthPotions.First())); }
+            if (basicMagicPotions.Count() > 0) { character.Consumables.Add(new MagicPotion((MagicPotion)basicMagicPotions.First())); }
         }
 
         /// <summary>

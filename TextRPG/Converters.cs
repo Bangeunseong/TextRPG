@@ -1,9 +1,11 @@
-using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace TextRPG
 {
+    /// <summary>
+    /// Converter for Armor Class
+    /// </summary>
     class ArmorConverter : JsonConverter<Armor>
     {
         public override Armor? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -12,7 +14,7 @@ namespace TextRPG
             var json = doc.RootElement;
 
             string? typeName = json.GetProperty("Type").GetString();
-            var data = json.GetProperty("Data").GetRawText();
+            var data = json.GetProperty("ArmorData").GetRawText();
 
             return typeName switch
             {
@@ -29,12 +31,15 @@ namespace TextRPG
         {
             writer.WriteStartObject();
             writer.WriteString("Type", value.GetType().Name);
-            writer.WritePropertyName("Data");
+            writer.WritePropertyName("ArmorData");
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
             writer.WriteEndObject();
         }
     }
 
+    /// <summary>
+    /// Converter for Weapon Class
+    /// </summary>
     class WeaponConverter : JsonConverter<Weapon>
     {
         public override Weapon? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -43,7 +48,7 @@ namespace TextRPG
             var json = doc.RootElement;
 
             string? typeName = json.GetProperty("Type").GetString();
-            var data = json.GetProperty("Data").GetRawText();
+            var data = json.GetProperty("WeaponData").GetRawText();
 
             return typeName switch
             {
@@ -58,12 +63,15 @@ namespace TextRPG
         {
             writer.WriteStartObject();
             writer.WriteString("Type", value.GetType().Name);
-            writer.WritePropertyName("Data");
+            writer.WritePropertyName("WeaponData");
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
             writer.WriteEndObject();
         }
     }
 
+    /// <summary>
+    /// Converter for Consumables Class
+    /// </summary>
     class ConsumableConverter : JsonConverter<Consumables>
     {
         public override Consumables? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -72,11 +80,12 @@ namespace TextRPG
             var json = doc.RootElement;
 
             string? typeName = json.GetProperty("Type").GetString();
-            var data = json.GetProperty("Data").GetRawText();
+            var data = json.GetProperty("ConsumableData").GetRawText();
 
             return typeName switch
             {
                 "HealthPotion" => JsonSerializer.Deserialize<HealthPotion>(data, options)!,
+                "MagicPotion" => JsonSerializer.Deserialize<MagicPotion>(data, options)!,
                 "AttackBuffPotion" => JsonSerializer.Deserialize<AttackBuffPotion>(data, options)!,
                 "DefendBuffPotion" => JsonSerializer.Deserialize<DefendBuffPotion>(data, options)!,
                 "AllBuffPotion" => JsonSerializer.Deserialize<AllBuffPotion>(data, options)!,
@@ -88,12 +97,15 @@ namespace TextRPG
         {
             writer.WriteStartObject();
             writer.WriteString("Type", value.GetType().Name);
-            writer.WritePropertyName("Data");
+            writer.WritePropertyName("ConsumableData");
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
             writer.WriteEndObject();
         }
     }
 
+    /// <summary>
+    /// Converter for Character Class
+    /// </summary>
     class CharacterConverter : JsonConverter<Character>
     {
         public override Character? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -102,7 +114,7 @@ namespace TextRPG
             var json = doc.RootElement;
 
             string? typeName = json.GetProperty("Type").GetString();
-            var data = json.GetProperty("Data").GetRawText();
+            var data = json.GetProperty("CharacterData").GetRawText();
 
             return typeName switch
             {
@@ -117,12 +129,46 @@ namespace TextRPG
         {
             writer.WriteStartObject();
             writer.WriteString("Type", value.GetType().Name);
-            writer.WritePropertyName("Data");
+            writer.WritePropertyName("CharacterData");
             JsonSerializer.Serialize(writer, value, value.GetType(), options);
             writer.WriteEndObject();
         }
     }
 
+    /// <summary>
+    /// Converter for Quest Class
+    /// </summary>
+    class QuestConverter : JsonConverter<Quest>
+    {
+        public override Quest? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            using var doc = JsonDocument.ParseValue(ref reader);
+            var json = doc.RootElement;
+
+            string? typeName = json.GetProperty("Type").GetString();
+            var data = json.GetProperty("QuestData").GetRawText();
+
+            return typeName switch
+            {
+                "NormalQuest" => JsonSerializer.Deserialize<NormalQuest>(data, options)!,
+                "SpecialQuest" => JsonSerializer.Deserialize<SpecialQuest>(data, options)!,
+                _ => throw new NotSupportedException($"Unknown character type: {typeName}")
+            };
+        }
+
+        public override void Write(Utf8JsonWriter writer, Quest value, JsonSerializerOptions options)
+        {
+            writer.WriteStartObject();
+            writer.WriteString("Type", value.GetType().Name);
+            writer.WritePropertyName("QuestData");
+            JsonSerializer.Serialize(writer, value, value.GetType(), options);
+            writer.WriteEndObject();
+        }
+    }
+
+    /// <summary>
+    /// Converter for Armor Class Array
+    /// </summary>
     class EquippedArmorConverter : JsonConverter<Armor[]>
     {
         public override Armor[] Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
