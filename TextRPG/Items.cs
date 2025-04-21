@@ -666,6 +666,44 @@ namespace TextRPG
     }
 
     /// <summary>
+    /// Magic Potion -> Restores magic point partially
+    /// </summary>
+    class MagicPotion : Consumables
+    {
+        public MagicPotion(string name, float coefficient, int price, Rarity rarity) : base(name, coefficient, price, ConsumableCategory.IncreaseMagicPoint, rarity) { }
+        public MagicPotion(MagicPotion potion) : base(potion.Name, potion.Coefficient, potion.Price, potion.ConsumableCategory, potion.Rarity) { }
+
+        [JsonConstructor]
+        public MagicPotion(string name, float coefficient, int price, Rarity rarity, ConsumableCategory consumableCategory) : base(name, coefficient, price, consumableCategory, rarity) { }
+
+        public override void OnUsed(Character character)
+        {
+            if (character.MagicPoint >= character.MaxMagicPoint) { Console.WriteLine("| Magic is already full! |"); return; }
+            base.OnUsed(character);
+            character.OnMagicPointHeal(Coefficient + (Coefficient * (int)Rarity * 0.5f));
+        }
+
+        public override void OnPurchased(Character character)
+        {
+            base.OnPurchased(character);
+            character.Consumables.Add(new MagicPotion(this));
+        }
+
+        public override void OnPicked(Character character)
+        {
+            base.OnPicked(character);
+            character.Consumables.Add(new MagicPotion(this));
+        }
+
+        public override string ToString()
+        {
+            StringBuilder sb = new();
+            sb.Append($"{Name} | Category : {ConsumableCategory} | Restore Health : {Coefficient} | Price : {Price} | Rarity : {Rarity}");
+            return sb.ToString();
+        }
+    }
+    
+    /// <summary>
     /// Attack Buff Potion -> Buffs Attack Parameters until the day passes.
     /// </summary>
     class AttackBuffPotion : Consumables
@@ -897,6 +935,9 @@ namespace TextRPG
             new HealthPotion("Small Health Potion", 20, 5, Rarity.Common),
             new HealthPotion("Medium Health Potion", 40, 10, Rarity.Exclusive),
             new HealthPotion("Large Health Potion", 60, 20, Rarity.Rare),
+            new MagicPotion("Small Magic Potion", 20, 5, Rarity.Common),
+            new MagicPotion("Medium Magic Potion", 40, 10, Rarity.Exclusive),
+            new MagicPotion("Large Magic Potion", 60, 20, Rarity.Rare),
             new AttackBuffPotion("Common Attack Potion", 5, 10, Rarity.Common),
             new AttackBuffPotion("Exclusive Attack Potion", 10, 30, Rarity.Exclusive),
             new AttackBuffPotion("Rare Attack Potion", 15, 50, Rarity.Rare),

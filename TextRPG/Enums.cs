@@ -3,7 +3,7 @@ namespace TextRPG
     #region InGame Options
     public enum IdleOptions
     {
-        Shop, Dungeon, Rest, Inventory, Status, Option,
+        Shop, Quest, Dungeon, Rest, Inventory, Status, Option,
     }
     
     public enum DungeonOptions
@@ -36,6 +36,7 @@ namespace TextRPG
     public enum ConsumableCategory
     {
         IncreaseHealth,
+        IncreaseMagicPoint,
         IncreaseAttack,
         IncreaseDefence,
         IncreaseAllStat,

@@ -1,4 +1,4 @@
-﻿namespace TextRPG
+namespace TextRPG
 {
     interface IDamagable
     {
